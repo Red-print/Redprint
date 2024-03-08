@@ -18,25 +18,25 @@ case "$choice" in
 1)
 echo -e "${GREEN}Starting installation process...${NC}"
     echo -e "${GREEN}Installing necessary packages: ca-certificates, curl, gnupg...${NC}"
-    sudo apt-get install -y ca-certificates curl gnupg
+     apt-get install -y ca-certificates curl gnupg
 
     echo -e "${GREEN}Creating /etc/apt/keyrings directory...${NC}"
-    sudo mkdir -p /etc/apt/keyrings
+     mkdir -p /etc/apt/keyrings
 
     echo -e "${GREEN}Adding NodeSource GPG key...${NC}"
-    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key |  gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
 
     echo -e "${GREEN}Adding NodeSource repository...${NC}"
-    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" |  tee /etc/apt/sources.list.d/nodesource.list
 
     echo -e "${GREEN}Updating package lists...${NC}"
-    sudo apt-get update
+     apt-get update
 
     echo -e "${GREEN}Installing Node.js...${NC}"
-    sudo apt-get install -y nodejs
+     apt-get install -y nodejs
 
     echo -e "${GREEN}Installing Yarn globally...${NC}"
-    sudo npm i -g yarn
+     npm i -g yarn
 
     echo -e "${GREEN}Changing directory to /var/www/pterodactyl...${NC}"
     cd /var/www/pterodactyl || exit
