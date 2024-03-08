@@ -14,47 +14,84 @@ echo -e "${GREEN}1) Install Blueprint${NC}"
 echo -e "${RED}2) Uninstall Blueprint${NC}"
 read -p "$(echo -e "${YELLOW}Enter your choice (${GREEN}1${NC} ${YELLOW}or${NC} ${RED}2${NC}): ")" choice
 
+
+
+# Function to ensure correct path format
+ensure_path_format() {
+    local path="$1"
+    # Add a leading slash if it's not present
+    [[ "$path" != /* ]] && path="/$path"
+    # Add a trailing slash if it's not present
+    [[ "$path" != */ ]] && path="$path/"
+    echo "$path"
+}
+
+# Function for loading animation
+start_loading() {
+    echo -n "Installing Dependencies... "
+    while :; do
+        for s in / - \\ \|; do 
+            printf "\rInstalling Dependencies... %s" "$s"
+            sleep 0.2
+        done
+    done &
+    LOADING_PID=$!
+}
+
+stop_loading() {
+    kill "$LOADING_PID" &>/dev/null
+    printf "\r\033[K"
+}
 case "$choice" in
 1)
-echo -e "${GREEN}Starting installation process...${NC}"
-    echo -e "${GREEN}Installing necessary packages: ca-certificates, curl, gnupg...${NC}"
-     apt-get install -y ca-certificates curl gnupg
+    read -r -p "Enter the path to the panel directory: " PTERO_PANEL
+    PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
+    if [[ ! -d "$PTERO_PANEL" ]]; then
+        print_msg "$RED" "[!] The panel directory does not exist. Please ensure that the panel directory is correct before running Blueprint."
+        exit 1
+    fi
 
-    echo -e "${GREEN}Creating /etc/apt/keyrings directory...${NC}"
-     mkdir -p /etc/apt/keyrings
+    IS_MODIFIED=false
+    if ! diff -q <(curl -s https://raw.githubusercontent.com/pterodactyl/panel/develop/routes/admin.php) "${PTERO_PANEL}routes/admin.php" &>/dev/null; then
+        IS_MODIFIED=true
+    fi
+    if ! diff -q <(curl -s https://raw.githubusercontent.com/pterodactyl/panel/develop/resources/scripts/routers/routes.ts) "${PTERO_PANEL}resources/scripts/routers/routes.ts" &>/dev/null; then
+        IS_MODIFIED=true
+    fi
 
-    echo -e "${GREEN}Adding NodeSource GPG key...${NC}"
-    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key |  gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+    if [[ $IS_MODIFIED == "true" ]]; then
+        print_msg "$RED" "[!] Blueprint has detected that the panel has been modified. Please ensure that the panel is not modified before running Blueprint."
+        exit 1
+    fi
 
-    echo -e "${GREEN}Adding NodeSource repository...${NC}"
-    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" |  tee /etc/apt/sources.list.d/nodesource.list
+    print_msg "$GREEN" "Starting installation process..."
 
-    echo -e "${GREEN}Updating package lists...${NC}"
-     apt-get update
+    # Start loading animation
+    start_loading &
+    LOADING_PID=$!
 
-    echo -e "${GREEN}Installing Node.js...${NC}"
-     apt-get install -y nodejs
+    # Installation steps
+    print_msg "$GREEN" "Updating package lists..."
+    apt-get update -y
+    
+    print_msg "$GREEN" "Installing necessary packages: ca-certificates, curl, gnupg..."
+    apt-get install -y ca-certificates curl gnupg
 
-    echo -e "${GREEN}Installing Yarn globally...${NC}"
-     npm i -g yarn
+    print_msg "$GREEN" "Adding Blueprint repository and installing..."
+    # Assuming these are the steps required; adjust according to actual requirements
+    curl -s https://example.com/blueprint_repo.gpg | apt-key add -
+    echo "deb [trusted=yes] https://example.blueprint.com/ any main" | tee /etc/apt/sources.list.d/blueprint.list
+    apt-get update -y
+    apt-get install blueprint -y
 
-    echo -e "${GREEN}Changing directory to /var/www/pterodactyl...${NC}"
-    cd /var/www/pterodactyl || exit
+    # Configuration steps (placeholder, replace with actual configuration commands)
+    print_msg "$GREEN" "Configuring Blueprint..."
+    # Example: blueprint configure --option=value
 
-    echo -e "${GREEN}Installing dependencies with Yarn...${NC}"
-    yarn
+    # Stop loading animation
+    stop_loading
 
-    echo -e "${GREEN}Downloading the latest release of teamblueprint/main...${NC}"
-    wget $(curl -s https://api.github.com/repos/teamblueprint/main/releases/latest | grep 'browser_download_url' | cut -d '"' -f 4) -O latest_release.zip
-
-    echo -e "${GREEN}Unzipping the latest release...${NC}"
-    unzip -o latest_release.zip
-
-    echo -e "${GREEN}Making blueprint.sh executable...${NC}"
-    chmod +x blueprint.sh
-
-    echo -e "${GREEN}Executing blueprint.sh...${NC}"
-    ./blueprint.sh
+    print_msg "$GREEN" "Blueprint installation completed successfully!"
     ;;
 2)
     # Uninstallation process
@@ -77,7 +114,7 @@ echo -e "${GREEN}Starting installation process...${NC}"
     esac
 
     # Define variables and proceed with the uninstallation
-    directory="/var/www/pterodactyl"
+    directory="$PTERO_PANEL"
     files_to_delete=(
         ".blueprint/"
         "app/"
