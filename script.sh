@@ -1,63 +1,66 @@
 #!/bin/bash
-
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
 # Check if the script is run with root privileges
 if [ "$(id -u)" -ne 0 ]; then
-    echo "This script must be run as root" 1>&2
+    echo -e "${RED}This script must be run as root${NC}" 1>&2
     exit 1
 fi
 
-echo "Select an option:"
-echo "1) Install Blueprint"
-echo "2) Uninstall Blueprint"
-read -p "Enter your choice (1 or 2): " choice
+echo -e "Select an option:"
+echo -e "${GREEN}1) Install Blueprint${NC}"
+echo -e "${RED}2) Uninstall Blueprint${NC}"
+read -p "$(echo -e "${YELLOW}Enter your choice (${GREEN}1${NC} ${YELLOW}or${NC} ${RED}2${NC}): ")" choice
 
 case "$choice" in
 1)
-echo "Starting installation process..."
-    echo "Installing necessary packages: ca-certificates, curl, gnupg..."
+echo -e "${GREEN}Starting installation process...${NC}"
+    echo -e "${GREEN}Installing necessary packages: ca-certificates, curl, gnupg...${NC}"
     sudo apt-get install -y ca-certificates curl gnupg
 
-    echo "Creating /etc/apt/keyrings directory..."
+    echo -e "${GREEN}Creating /etc/apt/keyrings directory...${NC}"
     sudo mkdir -p /etc/apt/keyrings
 
-    echo "Adding NodeSource GPG key..."
+    echo -e "${GREEN}Adding NodeSource GPG key...${NC}"
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
 
-    echo "Adding NodeSource repository..."
+    echo -e "${GREEN}Adding NodeSource repository...${NC}"
     echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
 
-    echo "Updating package lists..."
+    echo -e "${GREEN}Updating package lists...${NC}"
     sudo apt-get update
 
-    echo "Installing Node.js..."
+    echo -e "${GREEN}Installing Node.js...${NC}"
     sudo apt-get install -y nodejs
 
-    echo "Installing Yarn globally..."
+    echo -e "${GREEN}Installing Yarn globally...${NC}"
     sudo npm i -g yarn
 
-    echo "Changing directory to /var/www/pterodactyl..."
+    echo -e "${GREEN}Changing directory to /var/www/pterodactyl...${NC}"
     cd /var/www/pterodactyl || exit
 
-    echo "Installing dependencies with Yarn..."
+    echo -e "${GREEN}Installing dependencies with Yarn...${NC}"
     yarn
 
-    echo "Downloading the latest release of teamblueprint/main..."
+    echo -e "${GREEN}Downloading the latest release of teamblueprint/main...${NC}"
     wget $(curl -s https://api.github.com/repos/teamblueprint/main/releases/latest | grep 'browser_download_url' | cut -d '"' -f 4) -O latest_release.zip
 
-    echo "Unzipping the latest release..."
+    echo -e "${GREEN}Unzipping the latest release...${NC}"
     unzip -o latest_release.zip
 
-    echo "Making blueprint.sh executable..."
+    echo -e "${GREEN}Making blueprint.sh executable...${NC}"
     chmod +x blueprint.sh
 
-    echo "Executing blueprint.sh..."
+    echo -e "${GREEN}Executing blueprint.sh...${NC}"
     ./blueprint.sh
     ;;
 2)
     # Uninstallation process
-    echo "WARNING!: The following uninstall will remove blueprint and most* of its components."
-    echo "This will also delete your app/, public/, resources/, and ./blueprint folders."
-    read -p "Are you sure you want to continue with the uninstall (y/n): " choice
+    echo -e "WARNING!: ${RED}The following uninstall will remove blueprint and most* of its components."
+    echo -e "${RED}This will also delete your app/, public/, resources/, and ./blueprint folders.${NC}"
+    read -p "$(echo -e "${YELLOW}Are you sure you want to continue with the uninstall${NC} (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
 
     case "$choice" in
       y|Y) 
@@ -68,7 +71,7 @@ echo "Starting installation process..."
         exit
         ;;
       *) 
-        echo "Invalid choice. Please enter 'y' for yes or 'n' for no."
+        echo -e "${YELLOW}Invalid choice. Please enter 'y' for yes or 'n' for no.${NC}"
         exit 1
         ;;
     esac
@@ -84,7 +87,7 @@ echo "Starting installation process..."
         "blueprint.sh"
     )
 
-    read -p "Current directory: $directory. Press Enter to confirm, or enter a new directory: " new_directory
+    read -p "$(echo -e "${YELLOW}Current directory: $directory. Press Enter to confirm, or enter a new directory: ${NC}")" new_directory
 
     if [ -n "$new_directory" ]; then
         directory="$new_directory"
@@ -116,7 +119,7 @@ echo "Starting installation process..."
     php artisan view:clear
     php artisan config:clear
 
-    read -p "Do you want to update your database schema for the newest version of Pterodactyl? (y/n): " choice
+    read -p "$(echo -e "${YELLOW}Do you want to update your database schema for the newest version of Pterodactyl? (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
 
     case "$choice" in
       y|Y) 
@@ -127,12 +130,12 @@ echo "Starting installation process..."
         echo "Skipping database schema update."
         ;;
       *) 
-        echo "Invalid choice."
+        echo "${YELLOW}Invalid choice.${NC}"
         exit 1
         ;;
     esac
 
-    echo "Finishing up..."
+    echo -e "${GREEN}Finishing up...${NC}"
     chown -R www-data:www-data $directory
     php artisan queue:restart
     php artisan up
@@ -142,7 +145,7 @@ echo "Starting installation process..."
     echo "As composer's recommendation, do NOT run it as root."
     echo "See https://getcomposer.org/root for details."
     cd $currentLoc
-    echo "Uninstallation and update process completed!"
+    echo -e "${GREEN}Uninstallation and update process completed!${NC}"
     ;;
 *)
     echo "Invalid choice. Exiting."
