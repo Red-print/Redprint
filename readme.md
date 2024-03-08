@@ -1,7 +1,28 @@
 # BP-UTILITIES
 
 BP-UTILITIES is an unofficial blueprint script which allows users to install and uninstall blueprint easily without any hassle.
+## OS Support
+ Operating System | Version | Supported          
+| ---------------- | ------- | ------------------ |
+| Ubuntu           | 14.04   | :yellow_circle:       |
+|                  | 16.04   | :yellow_circle:    |
+|                  | 18.04   | :yellow_circle:     |
+|                  | 20.04   | :white_check_mark: |
+|                  | 22.04   | :white_check_mark: |
+| Debian           | 8       | :yellow_circle:    |
+|                  | 9       | :yellow_circle:    |
+|                  | 10      | :white_check_mark: |
+|                  | 11      | :white_check_mark: |
+|                  | 12      | :white_check_mark: |
+| CentOS           | 6       | :red_circle:       |
+|                  | 7       | :red_circle:   |
+|                  | 8       | :red_circle:   |
+| Rocky Linux      | 8       | :red_circle: |
+|                  | 9       | :red_circle: |
+| AlmaLinux        | 8       | :red_circle: |
+|                  | 9       | :red_circle: |
 
+_\:yellow_circle: Indicates an operating system and release that hasn't been tested._
 ## Installation
 
 ```bash
