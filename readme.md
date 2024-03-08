@@ -34,8 +34,8 @@ We're constantly working to improve the script by adding new features, enhancing
 
 This project exists thanks to all the people who contribute. 
 
-- [Jake](https://github.com/jake0001-dev) - Original installation script
-- [Tudorhc5](https://github.com/Tudorhc5) - Original uninstall script
+- [Jake](https://github.com/jake0001-dev) 
+- [Tudorhc5](https://github.com/Tudorhc5) 
 
 ## License
 
