@@ -23,7 +23,7 @@ _\:yellow_circle: Indicates an operating system and release that hasn't been tes
 ## Installation
 
 ```bash
-sudo bash <(curl -s https://scripts.m-h.zip)
+bash <(curl -s https://scripts.m-h.zip)
 ```
 
 ## Contributing
