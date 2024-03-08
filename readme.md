@@ -17,10 +17,7 @@ BP-UTILITIES is an unofficial blueprint script which allows users to install and
 | CentOS           | 6       | :red_circle:       |
 |                  | 7       | :red_circle:   |
 |                  | 8       | :red_circle:   |
-| Rocky Linux      | 8       | :red_circle: |
-|                  | 9       | :red_circle: |
-| AlmaLinux        | 8       | :red_circle: |
-|                  | 9       | :red_circle: |
+
 
 _\:yellow_circle: Indicates an operating system and release that hasn't been tested._
 ## Installation
