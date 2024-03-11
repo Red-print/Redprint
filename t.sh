@@ -213,6 +213,14 @@ case "$choice" in
         echo -e "${GREEN}Uninstallation and update process completed!${NC}"
         ;;
         3)
+        FOLDER_PATH="/var/www/pterodactyl"
+
+        if [ -d "$FOLDER_PATH" ]; then
+            echo "Folder exists."
+        else
+            echo "Error: Folder does not exist."
+            exit 1
+        fi
         echo -e "WARNING: ${RED}updating will make pterodactyl unavailable, please note that you WILL need to reinstall your blueprint extensions."
         read -p "$(echo -e "${YELLOW} Are you sure you want to continue with the update? (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
         case "$choice" in
