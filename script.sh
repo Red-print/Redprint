@@ -440,7 +440,7 @@ read -r pterodactyl_password
 
 # Connect to MySQL, create the pterodactyl user, create the panel database, and grant privileges
 echo -e "${GREEN}Connecting to MySQL...${NC}"
-sudo mysql -u root -p -e "CREATE USER 'pterodactyl'@'127.0.0.1' IDENTIFIED BY '$pterodactyl_password'; CREATE DATABASE panel; GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1' WITH GRANT OPTION;"
+sudo mysql -u root -p --default-character-set=utf8mb4 -e "CREATE USER 'pterodactyl'@'127.0.0.1' IDENTIFIED BY '$pterodactyl_password'; CREATE DATABASE panel; GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1' WITH GRANT OPTION;"
 echo $pterodactyl_password
 echo -e "${GREEN}MySQL user 'pterodactyl' and database 'panel' have been created.${NC}"
 #Copying env
