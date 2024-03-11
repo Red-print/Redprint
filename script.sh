@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Abandoning pterodactyl install for now may come back to it when i'll be better at bash.
 # Define color constants for better readability
 RED='\033[0;31m'
 GREEN='\033[0;32m'
