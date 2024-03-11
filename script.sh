@@ -15,39 +15,9 @@ ensure_path_format() {
     [[ "$path" != */ ]] && path="$path/"
     echo "$path"
 }
-
-# Function for loading animation
-start_loading() {
-    echo -n "Installing Dependencies... "
-    while :; do
-        for s in / - \\ \|; do 
-            printf "\rInstalling Dependencies... %s" "$s"
-            sleep 0.2
-        done
-    done &
-    LOADING_PID=$!
-}
-
-# Function to stop loading animation
-stop_loading() {
-    kill "$LOADING_PID" &>/dev/null
-    printf "\r\033[K"
-}
-
-# Check for root privileges
-if [[ "$(id -u)" -ne 0 ]]; then
-    echo -e "${RED}This script must be run as root${NC}"
-    exit 1
-fi
-
-echo -e "${GREEN}Select an option:"
-echo -e "1) Install Blueprint"
-echo -e "2) Uninstall Blueprint${NC}"
-read -p "$(echo -e "${YELLOW}Enter your choice (1 or 2): ${NC}")" choice
-
-case "$choice" in
-    1)
-        echo "Enter the path to the panel directory. By default its : /var/www/pterodactyl"
+# Install Function 
+install_bp(){
+echo "Enter the path to the panel directory"
         read -r PTERO_PANEL
 
         PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
@@ -100,7 +70,58 @@ case "$choice" in
             echo -e "${RED}[!] Failed to retrieve the latest release of Blueprint. Please check your internet connection and try again.${NC}"
             exit 1
         fi
+        }
+# Function for loading animation
+start_loading() {
+    echo -n "Installing Dependencies... "
+    while :; do
+        for s in / - \\ \|; do 
+            printf "\rInstalling Dependencies... %s" "$s"
+            sleep 0.2
+        done
+    done &
+    LOADING_PID=$!
+}
+
+# Function to stop loading animation
+stop_loading() {
+    kill "$LOADING_PID" &>/dev/null
+    printf "\r\033[K"
+}
+# Function to start updating loading animation
+start_uloading() {
+    echo -n "Updating... "
+    while :; do
+        for s in / - \\ \|; do 
+            printf "\rUpdating Dependencies... %s" "$s"
+            sleep 0.2
+        done
+    done &
+    LOADING_PID=$!
+}
+
+# Function to stop updating loading animation
+stop_uloading() {
+    kill "$LOADING_PID" &>/dev/null
+    printf "\r\033[K"
+}
+# Check for root privileges
+if [[ "$(id -u)" -ne 0 ]]; then
+    echo -e "${RED}This script must be run as root${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}Select an option:"
+echo -e "1) Install Blueprint"
+echo -e "2) Uninstall Blueprint"
+echo -e "3) Update Pterodactyl & Blueprint${NC}"
+read -p "$(echo -e "${YELLOW}Enter your choice (1,2 or 3): ${NC}")" choice
+
+case "$choice" in
+    1)
+         install_bp
         ;;
+        # Uninstallation Process
     2)
         echo -e "WARNING!: ${RED}The following uninstall will remove blueprint and most* of its components."
         echo -e "This will also delete your app/, public/, resources/, and ./blueprint folders.${NC}"
@@ -191,6 +212,51 @@ case "$choice" in
         cd "$currentLoc"
         echo -e "${GREEN}Uninstallation and update process completed!${NC}"
         ;;
+        3)
+        echo -e "WARNING: ${RED}updating will make pterodactyl unavailable, please note that you WILL need to reinstall your blueprint extensions."
+        read -p "$(echo -e "${YELLOW} Are you sure you want to continue with the update? (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
+        case "$choice" in
+            y|Y)
+            # Putting Pterodactyl into maintenance mode
+            echo -e "${GREEN}Pterodactyl is now in maintenance mode.${NC}"
+                cd /var/www/pterodactyl
+                php artisan down
+                # Downloading the ptero update.
+                echo -e "${GREEN}Downloading the latest version of Pterodactyl...${NC}"
+                curl -L -s https://github.com/pterodactyl/panel/releases/latest/download/panel.tar.gz | tar -xz
+                # Setting up permissions
+                chmod -R 755 storage/* bootstrap/cache
+                #Updating Dependencies
+                start_uloading
+                composer install --no-dev --optimize-autoloader --quiet
+                stop_uloading
+                # Clearing views and configs
+                echo -e "${GREEN}Clearing views and configs...${NC}"
+                php artisan view:clear
+                php artisan config:clear
+                php artisan migrate -q --seed --force
+                # Setting up Web Server Perms
+                echo -e "${GREEN}Setting up Web Server Permissions...${NC}"
+                chown -R www-data:www-data /var/www/pterodactyl/*
+                #Restarting Workers
+                echo -e "${GREEN}Restarting Workers...${NC}"
+                php artisan queue:restart
+                #Exiting Maintenance Mode
+                echo -e "${GREEN}Pterodactyl is now back online.${NC}"
+                php artisan up
+                #Reinstallating BP
+                install_bp
+                ;;
+                n|N)
+                echo "Exiting the script."
+                exit 1
+                ;;
+                *)
+                echo "Invalid choice. Exiting."
+                exit 1
+              ;;
+              esac
+              ;;
     *)
         echo "Invalid choice. Exiting."
         exit 1
