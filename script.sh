@@ -61,7 +61,7 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         fi
 
         # Validate and handle the download URL securely
-        DOWNLOAD_URL=$(curl -s https://api.github.com/repos/teamblueprint/main/releases/latest | grep 'browser_download_url' | cut -d '"' -f 4)
+        DOWNLOAD_URL=$(curl -s https://api.github.com/repos/BlueprintFramework/main/releases/latest | grep 'browser_download_url' | cut -d '"' -f 4)
         if [[ -n $DOWNLOAD_URL ]]; then
             wget "$DOWNLOAD_URL" -O latest_release.zip &> /dev/null
             unzip -o latest_release.zip &> /dev/null
