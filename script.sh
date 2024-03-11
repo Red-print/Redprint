@@ -89,6 +89,23 @@ stop_loading() {
     printf "\r\033[K"
 }
 # Function to start updating loading animation
+start_uninstall() {
+    echo -n "Uninstalling... "
+    while :; do
+        for s in / - \\ \|; do 
+            printf "\rUninstalling... %s" "$s"
+            sleep 0.2
+        done
+    done &
+    LOADING_PID=$!
+}
+
+# Function to stop updating loading animation
+stop_uninstall() {
+    kill "$LOADING_PID" &>/dev/null
+    printf "\r\033[K"
+}
+
 start_uloading() {
     echo -n "Updating... "
     while :; do
@@ -115,7 +132,8 @@ echo -e "${GREEN}Select an option:"
 echo -e "1) Install Blueprint"
 echo -e "2) Uninstall Blueprint"
 echo -e "3) Update Pterodactyl & Blueprint"
-read -p "$(echo -e "${YELLOW}Enter your choice (1,2, or 3): ${NC}")" choice
+echo -e "4) Remove Pterodactyl & Blueprint"
+read -p "$(echo -e "${YELLOW}Enter your choice (1,2,3 or 4): ${NC}")" choice
 
 case "$choice" in
     1)
@@ -213,6 +231,7 @@ case "$choice" in
         echo -e "${GREEN}Uninstallation and update process completed!${NC}"
         ;;
 3)
+# Asking Ptero directory
     echo "Enter the path to the panel directory. Default: /var/www/pterodactyl/"
     read -r PTERO_PANEL
 
@@ -224,7 +243,7 @@ case "$choice" in
         echo -e "${RED}[!] The panel directory does not exist. Please ensure that the panel directory is correct before running an update.${NC}"
         exit 1
     fi
-
+# Warning the users
     echo -e "WARNING: ${RED}Updating will make Pterodactyl unavailable. Please note that you WILL need to reinstall your blueprint extensions."
     read -p "$(echo -e "${YELLOW}Are you sure you want to continue with the update? (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
 
@@ -270,12 +289,77 @@ case "$choice" in
             ;;
     esac
     ;;
+    # Uninstalling ptero & bp
+    4)
+    # Asking Ptero directory
+        echo "Enter the path to the panel directory. Default: /var/www/pterodactyl/"
+        read -r PTERO_PANEL
+
+        PTERO_PANEL=${PTERO_PANEL:-/var/www/pterodactyl/} # Use default value if input is empty
+        PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
+
+        # Check if the panel directory exists
+        if [[ ! -d "$PTERO_PANEL" ]]; then
+            echo -e "${RED}[!] The panel directory does not exist. Please ensure that the panel directory is correct before running an update.${NC}"
+            exit 1
+        fi
+    # Warning the users
+        echo -e "WARNING: ${RED}Uninstalling Pterodactyl & Blueprint will delete everything without any possibility of restoring it.${NC}"
+        read -p "$(echo -e "${YELLOW}Are you sure you want to continue with the uninstallation? (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
+
+        case "$choice" in
+            y|Y)
+            start_uninstall
+    sudo rm -rf $PTERO_PANEL &> /dev/null
+
+    # Pteroq queue worker
+    sudo rm /etc/systemd/system/pteroq.service &> /dev/null
+
+    # Removing conf files
+    sudo unlink /etc/nginx/sites-enabled/pterodactyl.conf &> /dev/null
+    stop_uninstall
+    read -p "$(echo -e "${YELLOW}Do you want to remove nginx? (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
+
+    case "$choice" in
+        y|Y)
+        start_uninstall
+        # Stopping nginx
+        sudo systemctl stop nginx &> /dev/null
+
+        sudo apt purge nginx nginx-common -y &> /dev/null
+        sudo apt autoremove -y &> /dev/null # remove any leftover dependencies
+        stop_uninstall
+        # Dropping DB & user
+        echo -e "${GREEN}Dropping database and user...${NC}"
+        mysql -u root -p -e "SHOW DATABASES; DROP DATABASE panel; SELECT User, Host FROM mysql.user; DROP USER 'pterodactyl'@'127.0.0.1';"
+    ;;
+        n|N)
+        # Dropping DB & user
+        echo -e "${GREEN}Dropping database and user...${NC}"
+        mysql -u root -p -e "SHOW DATABASES; DROP DATABASE panel; SELECT User, Host FROM mysql.user; DROP USER 'pterodactyl'@'127.0.0.1';" &> /dev/null
+        echo -e "${GREEN}Uninstallation process has been completed!${NC}"
+        exit
+        ;;
+        n|N)
+        echo "Exiting the script."
+        exit
+        esac
+;;
 *)
     echo -e "${YELLOW}Invalid section. Exiting.${NC}"
     exit 1
     ;;
 esac
 ;;
+
+        n|N)
+            echo "Exiting the script."
+            exit 
+            ;;
+        *)
+            echo "Invalid choice. Exiting."
+            exit 1
+            ;;
     *)
         echo "${YELLOW}Invalid choice. Exiting.${NC}"
         exit 1
