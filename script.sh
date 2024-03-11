@@ -105,148 +105,6 @@ stop_uloading() {
     kill "$LOADING_PID" &>/dev/null
     printf "\r\033[K"
 }
-# With SSL
-web_ssl_config() {
-apt install nginx &> /dev/null
-echo "Enter your domain name. example : example.com"
-read -r domain_name
-systemctl stop nginx
-sudo apt install -y python3-certbot-nginx &> /dev/null
-certbot certonly --nginx --quiet -d $domain_name
-NEW_CRON_JOB="0 23 * * * certbot renew --quiet --deploy-hook "systemctl restart nginx" &> /dev/null"
-(crontab -l 2>/dev/null | grep -v -F "$NEW_CRON_JOB"; echo "$NEW_CRON_JOB") | crontab -
-rm /etc/nginx/sites-enabled/default
-sudo cat <<EOT >> /etc/nginx/sites-available/pterodactyl.conf
-server_tokens off;
-
-server {
-    listen 80;
-    server_name $domain_name;
-    return 301 https://$server_name$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name $domain_name;
-
-    root /var/www/pterodactyl/public;
-    index index.php;
-
-    access_log /var/log/nginx/pterodactyl.app-access.log;
-    error_log  /var/log/nginx/pterodactyl.app-error.log error;
-
-    # allow larger file uploads and longer script runtimes
-    client_max_body_size 100m;
-    client_body_timeout 120s;
-
-    sendfile off;
-
-    # SSL Configuration - Replace the example <domain> with your domain
-    ssl_certificate /etc/letsencrypt/live/$domain_name/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/$domain_name/privkey.pem;
-    ssl_session_cache shared:SSL:10m;
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384";
-    ssl_prefer_server_ciphers on;
-
-    # See https://hstspreload.org/ before uncommenting the line below.
-    # add_header Strict-Transport-Security "max-age=15768000; preload;";
-    add_header X-Content-Type-Options nosniff;
-    add_header X-XSS-Protection "1; mode=block";
-    add_header X-Robots-Tag none;
-    add_header Content-Security-Policy "frame-ancestors 'self'";
-    add_header X-Frame-Options DENY;
-    add_header Referrer-Policy same-origin;
-
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    location ~ \.php$ {
-        fastcgi_split_path_info ^(.+\.php)(/.+)$;
-        fastcgi_pass unix:/run/php/php8.1-fpm.sock;
-        fastcgi_index index.php;
-        include fastcgi_params;
-        fastcgi_param PHP_VALUE "upload_max_filesize = 100M \n post_max_size=100M";
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        fastcgi_param HTTP_PROXY "";
-        fastcgi_intercept_errors off;
-        fastcgi_buffer_size 16k;
-        fastcgi_buffers 4 16k;
-        fastcgi_connect_timeout 300;
-        fastcgi_send_timeout 300;
-        fastcgi_read_timeout 300;
-        include /etc/nginx/fastcgi_params;
-    }
-
-    location ~ /\.ht {
-        deny all;
-    }
-}
-EOT
-
-sudo ln -s /etc/nginx/sites-available/pterodactyl.conf /etc/nginx/sites-enabled/pterodactyl.conf
-systemctl start nginx
-}
-# Non SSL
-web_config() {
-apt install nginx &> /dev/null
-echo "Enter your domain name. example : example.com"
-read -r domain_name
-systemctl stop nginx
-rm /etc/nginx/sites-enabled/default
-sudo cat <<EOT >> /etc/nginx/sites-available/pterodactyl.conf
-server {
-    # Replace the example <domain> with your domain name or IP address
-    listen 80;
-    server_name $domain_name;
-
-
-    root /var/www/pterodactyl/public;
-    index index.html index.htm index.php;
-    charset utf-8;
-
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    location = /favicon.ico { access_log off; log_not_found off; }
-    location = /robots.txt  { access_log off; log_not_found off; }
-
-    access_log off;
-    error_log  /var/log/nginx/pterodactyl.app-error.log error;
-
-    # allow larger file uploads and longer script runtimes
-    client_max_body_size 100m;
-    client_body_timeout 120s;
-
-    sendfile off;
-
-    location ~ \.php$ {
-        fastcgi_split_path_info ^(.+\.php)(/.+)$;
-        fastcgi_pass unix:/run/php/php8.1-fpm.sock;
-        fastcgi_index index.php;
-        include fastcgi_params;
-        fastcgi_param PHP_VALUE "upload_max_filesize = 100M \n post_max_size=100M";
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        fastcgi_param HTTP_PROXY "";
-        fastcgi_intercept_errors off;
-        fastcgi_buffer_size 16k;
-        fastcgi_buffers 4 16k;
-        fastcgi_connect_timeout 300;
-        fastcgi_send_timeout 300;
-        fastcgi_read_timeout 300;
-    }
-
-    location ~ /\.ht {
-        deny all;
-    }
-}
-EOT
-
-sudo ln -s /etc/nginx/sites-available/pterodactyl.conf /etc/nginx/sites-enabled/pterodactyl.conf
-systemctl start nginx
-}
 # Check for root privileges
 if [[ "$(id -u)" -ne 0 ]]; then
     echo -e "${RED}This script must be run as root${NC}"
@@ -355,13 +213,24 @@ case "$choice" in
         echo -e "${GREEN}Uninstallation and update process completed!${NC}"
         ;;
         3)
+        echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
+        read -r PTERO_PANEL
+
+        PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
+
+        # Check if the panel directory exists
+        if [[ ! -d "$PTERO_PANEL" ]]; then
+            echo -e "${RED}[!] The panel directory does not exist. Please ensure that the panel directory is correct before running an update.${NC}"
+            exit 1
+        fi
+       
         echo -e "WARNING: ${RED}updating will make pterodactyl unavailable, please note that you WILL need to reinstall your blueprint extensions."
         read -p "$(echo -e "${YELLOW} Are you sure you want to continue with the update? (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
         case "$choice" in
             y|Y)
             # Putting Pterodactyl into maintenance mode
             echo -e "${GREEN}Pterodactyl is now in maintenance mode.${NC}"
-                cd /var/www/pterodactyl
+                cd $PTERO_PANEL
                 php artisan down
                 # Downloading the ptero update.
                 echo -e "${GREEN}Downloading the latest version of Pterodactyl...${NC}"
@@ -379,7 +248,7 @@ case "$choice" in
                 php artisan migrate -q --seed --force
                 # Setting up Web Server Perms
                 echo -e "${GREEN}Setting up Web Server Permissions...${NC}"
-                chown -R www-data:www-data /var/www/pterodactyl/*
+                chown -R www-data:www-data "${PTERO_PANEL}"*
                 #Restarting Workers
                 echo -e "${GREEN}Restarting Workers...${NC}"
                 php artisan queue:restart
@@ -399,177 +268,6 @@ case "$choice" in
               ;;
               esac
               ;;
-              4)
-              # Add "add-apt-repository" command
-              start_loading
-             sudo apt -y install software-properties-common curl apt-transport-https ca-certificates gnupg -qq
-
-              # Add additional repositories for PHP, Redis, and MariaDB
-              LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php
-stop_loading
-              # Add Redis official APT repository
-              curl -s -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
-              echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
-
-              # MariaDB repo setup script can be skipped on Ubuntu 22.04
-              start_loading
-             sudo curl -sS -s https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
-
-              # Update repositories list
-              sudo apt update -qq
-
-              # Install Dependencies
-              apt -y install php8.1 php8.1-{common,cli,gd,mysql,mbstring,bcmath,xml,fpm,curl,zip} mariadb-server nginx tar unzip git redis-server -qq
-              stop_loading
-# Installing Composer
-echo -e "${GREEN}Installing Composer...${NC}"
-sudo curl -s -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
-# Creating the directories
-echo -e "${GREEN}Creating the directories...${NC}"
-sudo mkdir -p /var/www/pterodactyl
-cd /var/www/pterodactyl
-# Downloading Ptero 
-echo -e "${GREEN}Downloading Pterodactyl...${NC}"
-sudo curl -s -Lo panel.tar.gz https://github.com/pterodactyl/panel/releases/latest/download/panel.tar.gz
-sudo tar -xzf panel.tar.gz
-sudo chmod -R 755 storage/* bootstrap/cache/
-echo "Enter a unique password for the MySQL 'pterodactyl' user:"
-read -r pterodactyl_password
-
-# Connect to MySQL, create the pterodactyl user, create the panel database, and grant privileges
-echo -e "${GREEN}Connecting to MySQL...${NC}"
-sudo mysql -u root -p <<MYSQL_SCRIPT
-CREATE USER 'pterodactyl'@'127.0.0.1' IDENTIFIED BY '$pterodactyl_password';
-CREATE DATABASE panel;
-GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1' WITH GRANT OPTION;
-FLUSH PRIVILEGES;
-exit
-MYSQL_SCRIPT
-
-echo -e "${GREEN}MySQL user 'pterodactyl' and database 'panel' have been created.${NC}"
-#Copying env
-echo -e "${GREEN}Copying env file & setup composer...${NC}"
-sudo cp .env.example .env
-sudo composer install -q --no-dev --optimize-autoloader
-
-# Only run the command below if you are installing this Panel for
-# the first time and do not have any Pterodactyl Panel data in the database.
-echo -e "${GREEN}Creating the initial Pterodactyl Panel data...${NC}"
-sudo php artisan key:generate --force
-echo -e "WARNING: ${RED}Back up your encryption key (APP_KEY in the .env file). It is used as an encryption key for all data that needs to be stored securely (e.g. api keys). Store it somewhere safe - not just on your server. If you lose it all encrypted data is irrecoverable -- even if you have database backups.${NC}"
-# Environment Config
-sudo php artisan p:environment:setup
-sudo php artisan p:environment:database
-echo -e "${GREEN}Do you wish to add smtp to pterodactyl?${NC}"
-read -p "$(echo -e "${YELLOW}Enter your choice (y/n): ${NC}")" choice
-case "$choice" in
-y)
-echo -e "${GREEN}Adding smtp to pterodactyl...${NC}"
-sudo php artisan p:environment:mail
-#DB MIGRATE
-echo -e "${GREEN}Migrating database...${NC}"
-sudo php artisan migrate -q --seed --force
-#First User
-echo -e "${GREEN}Creating the first user...${NC}"
-sudo php artisan p:user:make
-echo -e "${GREEN}Setting up web server permissions and setting up crontab${NC}"
-sudo chown -R www-data:www-data /var/www/pterodactyl/*
-NEW_CRON_JOB="* * * * * php /var/www/pterodactyl/artisan schedule:run >> /dev/null 2>&1"
-(crontab -l 2>/dev/null | grep -v -F "$NEW_CRON_JOB"; echo "$NEW_CRON_JOB") | crontab -
-sudo cat <<EOT >> /etc/systemd/system/pteroq.service
-# Pterodactyl Queue Worker File
-# ----------------------------------
-
-[Unit]
-Description=Pterodactyl Queue Worker
-After=redis-server.service
-
-[Service]
-# On some systems the user and group might be different.
-# Some systems use `apache` or `nginx` as the user and group.
-User=www-data
-Group=www-data
-Restart=always
-ExecStart=/usr/bin/php /var/www/pterodactyl/artisan queue:work --queue=high,standard,low --sleep=3 --tries=3
-StartLimitInterval=180
-StartLimitBurst=30
-RestartSec=5s
-
-[Install]
-WantedBy=multi-user.target
-EOT
-sudo systemctl enable --now redis-server
-sudo systemctl enable --now pteroq.service
-echo -e "${GREEN}Do you wish to add SSL to pterodactyl?${NC}"
-read -p "$(echo -e "${YELLOW}Enter your choice (y/n): ${NC}")" choice
-case "$choice" in
-y)
-web_ssl_config
-echo -e "${GREEN}Pterodactyl is now installed!${NC}"
-install_bp
-echo -e "${GREEN}Pterodactyl and Blueprint are now installed!${NC}"
-;;
-n)
-web_config
-echo -e "${GREEN}Pterodactyl is now installed!${NC}"
-install_bp
-echo -e "${GREEN}Pterodactyl and Blueprint are now installed!${NC}"
-;;
-esac
-;;
-n)
-echo -e "${GREEN}Skipping smtp setup...${NC}"
-
-echo -e "${GREEN}Migrating database...${NC}"
-sudo php artisan migrate -q --seed --force
-#First User
-echo -e "${GREEN}Creating the first user...${NC}"
-sudo php artisan p:user:make
-echo -e "${GREEN}Setting up web server permissions and setting up crontab${NC}"
-sudo chown -R www-data:www-data /var/www/pterodactyl/*
-NEW_CRON_JOB="* * * * * php /var/www/pterodactyl/artisan schedule:run >> /dev/null 2>&1"
-(crontab -l 2>/dev/null | grep -v -F "$NEW_CRON_JOB"; echo "$NEW_CRON_JOB") | crontab -
-sudo cat <<EOT >> /etc/systemd/system/pteroq.service
-# Pterodactyl Queue Worker File
-# ----------------------------------
-
-[Unit]
-Description=Pterodactyl Queue Worker
-After=redis-server.service
-
-[Service]
-# On some systems the user and group might be different.
-# Some systems use `apache` or `nginx` as the user and group.
-User=www-data
-Group=www-data
-Restart=always
-ExecStart=/usr/bin/php /var/www/pterodactyl/artisan queue:work --queue=high,standard,low --sleep=3 --tries=3
-StartLimitInterval=180
-StartLimitBurst=30
-RestartSec=5s
-
-[Install]
-WantedBy=multi-user.target
-EOT
-sudo systemctl enable --now redis-server
-sudo systemctl enable --now pteroq.service
-echo -e "${GREEN}Do you wish to add SSL to pterodactyl?${NC}"
-read -p "$(echo -e "${YELLOW}Enter your choice (y/n): ${NC}")" choice
-case "$choice" in
-y)
-web_ssl_config
-echo -e "${GREEN}Pterodactyl is now installed!${NC}"
-install_bp
-echo -e "${GREEN}Pterodactyl and Blueprint are now installed!${NC}"
-;;
-n)
-web_config
-echo -e "${GREEN}Pterodactyl is now installed!${NC}"
-install_bp
-echo -e "${GREEN}Pterodactyl and Blueprint are now installed!${NC}"
-;;
-esac
-;;
 *)
 echo -e "${YELLOW}Invalid choice. Exiting.${NC}"
 exit 1
