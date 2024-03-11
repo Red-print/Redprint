@@ -37,6 +37,7 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list &> /dev/null
         sudo apt-get update &> /dev/null
         sudo apt-get install -y nodejs &> /dev/null
+        sudo apt-get install -y zip &> /dev/null
         sudo npm i -g yarn &> /dev/null
 
         stop_loading
@@ -403,10 +404,10 @@ case "$choice" in
               4)
               # Add "add-apt-repository" command
               start_loading
-             sudo apt -y install software-properties-common curl apt-transport-https ca-certificates gnupg -qq
+             sudo apt -y install software-properties-common curl apt-transport-https ca-certificates gnupg -qq &> /dev/null
 
               # Add additional repositories for PHP, Redis, and MariaDB
-              LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php
+              LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php &> /dev/null
 stop_loading
               # Add Redis official APT repository
               curl -s -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
@@ -414,13 +415,12 @@ stop_loading
 
               # MariaDB repo setup script can be skipped on Ubuntu 22.04
               start_loading
-             sudo curl -sS -s https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
+             sudo curl -sS -s https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash &> /dev/null
 
               # Update repositories list
-              sudo apt update -qq
-
+              sudo apt update -qq &> /dev/null
               # Install Dependencies
-              apt -y install php8.1 php8.1-{common,cli,gd,mysql,mbstring,bcmath,xml,fpm,curl,zip} mariadb-server nginx tar unzip git redis-server -qq
+              apt -y install php8.1 php8.1-{common,cli,gd,mysql,mbstring,bcmath,xml,fpm,curl,zip} mariadb-server nginx tar unzip git redis-server -qq &> /dev/null
               stop_loading
 # Installing Composer
 echo -e "${GREEN}Installing Composer...${NC}"
@@ -439,13 +439,7 @@ read -r pterodactyl_password
 
 # Connect to MySQL, create the pterodactyl user, create the panel database, and grant privileges
 echo -e "${GREEN}Connecting to MySQL...${NC}"
-sudo mysql -u root -p <<MYSQL_SCRIPT
-CREATE USER 'pterodactyl'@'127.0.0.1' IDENTIFIED BY '$pterodactyl_password';
-CREATE DATABASE panel;
-GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1' WITH GRANT OPTION;
-FLUSH PRIVILEGES;
-exit
-MYSQL_SCRIPT
+sudo mysql -u root -p -e "CREATE USER 'pterodactyl'@'127.0.0.1' IDENTIFIED BY '$pterodactyl_password'; CREATE DATABASE panel; GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1' WITH GRANT OPTION;"
 
 echo -e "${GREEN}MySQL user 'pterodactyl' and database 'panel' have been created.${NC}"
 #Copying env
