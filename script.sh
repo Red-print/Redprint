@@ -47,7 +47,7 @@ read -p "$(echo -e "${YELLOW}Enter your choice (1 or 2): ${NC}")" choice
 
 case "$choice" in
     1)
-        echo "Enter the path to the panel directory"
+        echo "Enter the path to the panel directory. By default its : /var/www/pterodactyl"
         read -r PTERO_PANEL
 
         PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
