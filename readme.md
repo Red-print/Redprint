@@ -1,6 +1,6 @@
 # BP-UTILITIES
 
-BP-UTILITIES is an unofficial blueprint script which allows users to install and uninstall blueprint easily without any hassle.
+BP-UTILITIES, an unofficial blueprint script, now allows for hassle-free installation and uninstallation of blueprint, with the added capability to simultaneously install Pterodactyl and update both applications, streamlining server management processes.
 ## OS Support
  Operating System | Version | Supported          
 | ---------------- | ------- | ------------------ |
