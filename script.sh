@@ -17,7 +17,7 @@ ensure_path_format() {
 }
 # Install Function 
 install_bp(){
-echo "Enter the path to the panel directory"
+echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         read -r PTERO_PANEL
 
         PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
@@ -114,8 +114,9 @@ fi
 echo -e "${GREEN}Select an option:"
 echo -e "1) Install Blueprint"
 echo -e "2) Uninstall Blueprint"
-echo -e "3) Update Pterodactyl & Blueprint${NC}"
-read -p "$(echo -e "${YELLOW}Enter your choice (1,2 or 3): ${NC}")" choice
+echo -e "3) Update Pterodactyl & Blueprint"
+echo -e "4) Install Pterodactyl & Blueprint${NC}"
+read -p "$(echo -e "${YELLOW}Enter your choice (1,2,3 or 4): ${NC}")" choice
 
 case "$choice" in
     1)
@@ -189,7 +190,7 @@ case "$choice" in
         case "$choice" in
             y|Y) 
                 echo "Updating database schema..."
-                php artisan migrate --seed --force
+                php artisan migrate -q --seed --force
                 ;;
             n|N) 
                 echo "Skipping database schema update."
@@ -257,8 +258,159 @@ case "$choice" in
               ;;
               esac
               ;;
+              4)
+              # Add "add-apt-repository" command
+              start_loading
+             sudo apt -y install software-properties-common curl apt-transport-https ca-certificates gnupg -qq
+
+              # Add additional repositories for PHP, Redis, and MariaDB
+              LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php
+stop_loading
+              # Add Redis official APT repository
+              curl -s -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+              echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+
+              # MariaDB repo setup script can be skipped on Ubuntu 22.04
+              start_loading
+             sudo curl -sS -s https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
+
+              # Update repositories list
+              sudo apt update -qq
+
+              # Install Dependencies
+              apt -y install php8.1 php8.1-{common,cli,gd,mysql,mbstring,bcmath,xml,fpm,curl,zip} mariadb-server nginx tar unzip git redis-server -qq
+              stop_loading
+# Installing Composer
+echo -e "${GREEN}Installing Composer...${NC}"
+sudo curl -s -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+# Creating the directories
+echo -e "${GREEN}Creating the directories...${NC}"
+sudo mkdir -p /var/www/pterodactyl
+cd /var/www/pterodactyl
+# Downloading Ptero 
+echo -e "${GREEN}Downloading Pterodactyl...${NC}"
+sudo curl -s -Lo panel.tar.gz https://github.com/pterodactyl/panel/releases/latest/download/panel.tar.gz
+sudo tar -xzf panel.tar.gz
+sudo chmod -R 755 storage/* bootstrap/cache/
+echo "Enter a unique password for the MySQL 'pterodactyl' user:"
+read -r pterodactyl_password
+
+# Connect to MySQL, create the pterodactyl user, create the panel database, and grant privileges
+echo -e "${GREEN}Connecting to MySQL...${NC}"
+sudo mysql -u root -p <<MYSQL_SCRIPT
+CREATE USER 'pterodactyl'@'127.0.0.1' IDENTIFIED BY '$pterodactyl_password';
+CREATE DATABASE panel;
+GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+exit
+MYSQL_SCRIPT
+
+echo -e "${GREEN}MySQL user 'pterodactyl' and database 'panel' have been created.${NC}"
+#Copying env
+echo -e "${GREEN}Copying env file & setup composer...${NC}"
+sudo cp .env.example .env
+sudo composer install -q --no-dev --optimize-autoloader
+
+# Only run the command below if you are installing this Panel for
+# the first time and do not have any Pterodactyl Panel data in the database.
+echo -e "${GREEN}Creating the initial Pterodactyl Panel data...${NC}"
+sudo php artisan key:generate --force
+echo -e "WARNING: ${RED}Back up your encryption key (APP_KEY in the .env file). It is used as an encryption key for all data that needs to be stored securely (e.g. api keys). Store it somewhere safe - not just on your server. If you lose it all encrypted data is irrecoverable -- even if you have database backups.${NC}"
+# Environment Config
+sudo php artisan p:environment:setup
+sudo php artisan p:environment:database
+echo -e "${GREEN}Do you wish to add smtp to pterodactyl?${NC}"
+read -p "$(echo -e "${YELLOW}Enter your choice (y/n): ${NC}")" choice
+case "$choice" in
+y)
+echo -e "${GREEN}Adding smtp to pterodactyl...${NC}"
+sudo php artisan p:environment:mail
+#DB MIGRATE
+echo -e "${GREEN}Migrating database...${NC}"
+sudo php artisan migrate -q --seed --force
+#First User
+echo -e "${GREEN}Creating the first user...${NC}"
+sudo php artisan p:user:make
+echo -e "${GREEN}Setting up web server permissions and setting up crontab${NC}"
+sudo chown -R www-data:www-data /var/www/pterodactyl/*
+NEW_CRON_JOB="* * * * * php /var/www/pterodactyl/artisan schedule:run >> /dev/null 2>&1"
+(crontab -l 2>/dev/null | grep -v -F "$NEW_CRON_JOB"; echo "$NEW_CRON_JOB") | crontab -
+sudo cat <<EOT >> /etc/systemd/system/pteroq.service
+# Pterodactyl Queue Worker File
+# ----------------------------------
+
+[Unit]
+Description=Pterodactyl Queue Worker
+After=redis-server.service
+
+[Service]
+# On some systems the user and group might be different.
+# Some systems use `apache` or `nginx` as the user and group.
+User=www-data
+Group=www-data
+Restart=always
+ExecStart=/usr/bin/php /var/www/pterodactyl/artisan queue:work --queue=high,standard,low --sleep=3 --tries=3
+StartLimitInterval=180
+StartLimitBurst=30
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+EOT
+sudo systemctl enable --now redis-server
+sudo systemctl enable --now pteroq.service
+echo -e "${GREEN}Pterodactyl is now installed!${NC}"
+install_bp
+echo -e "${GREEN}Pterodactyl and Blueprint are now installed!${NC}"
+;;
+n)
+echo -e "${GREEN}Skipping smtp setup...${NC}"
+
+echo -e "${GREEN}Migrating database...${NC}"
+sudo php artisan migrate -q --seed --force
+#First User
+echo -e "${GREEN}Creating the first user...${NC}"
+sudo php artisan p:user:make
+echo -e "${GREEN}Setting up web server permissions and setting up crontab${NC}"
+sudo chown -R www-data:www-data /var/www/pterodactyl/*
+NEW_CRON_JOB="* * * * * php /var/www/pterodactyl/artisan schedule:run >> /dev/null 2>&1"
+(crontab -l 2>/dev/null | grep -v -F "$NEW_CRON_JOB"; echo "$NEW_CRON_JOB") | crontab -
+sudo cat <<EOT >> /etc/systemd/system/pteroq.service
+# Pterodactyl Queue Worker File
+# ----------------------------------
+
+[Unit]
+Description=Pterodactyl Queue Worker
+After=redis-server.service
+
+[Service]
+# On some systems the user and group might be different.
+# Some systems use `apache` or `nginx` as the user and group.
+User=www-data
+Group=www-data
+Restart=always
+ExecStart=/usr/bin/php /var/www/pterodactyl/artisan queue:work --queue=high,standard,low --sleep=3 --tries=3
+StartLimitInterval=180
+StartLimitBurst=30
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+EOT
+sudo systemctl enable --now redis-server
+sudo systemctl enable --now pteroq.service
+echo -e "${GREEN}Pterodactyl is now installed!${NC}"
+install_bp
+echo -e "${GREEN}Pterodactyl and Blueprint are now installed!${NC}"
+;;
+*)
+echo -e "${YELLOW}Invalid choice. Exiting.${NC}"
+exit 1
+;;
+esac
+;;
     *)
-        echo "Invalid choice. Exiting."
+        echo "${YELLOW}Invalid choice. Exiting.${NC}"
         exit 1
         ;;
 esac
