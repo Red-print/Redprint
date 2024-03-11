@@ -251,15 +251,16 @@ case "$choice" in
                 php artisan up
                 #Reinstallating BP
                 install_bp
-                else
-                    echo "Error: Folder does not exist."
-                    exit 1
-                fi
+
                 ;;
                 n|N)
                 echo "Exiting the script."
                 exit 1
                 ;;
+                else
+                    echo "Error: Folder does not exist."
+                    exit 1
+                fi
                 *)
                 echo "Invalid choice. Exiting."
                 exit 1
