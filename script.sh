@@ -17,7 +17,7 @@ ensure_path_format() {
 }
 # Install Function 
 install_bp(){
-echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
+echo "Enter the path to the panel directory"
         read -r PTERO_PANEL
 
         PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
@@ -114,9 +114,8 @@ fi
 echo -e "${GREEN}Select an option:"
 echo -e "1) Install Blueprint"
 echo -e "2) Uninstall Blueprint"
-echo -e "3) Update Pterodactyl & Blueprint"
-echo -e "4) Install Pterodactyl & Blueprint${NC}"
-read -p "$(echo -e "${YELLOW}Enter your choice (1,2,3 or 4): ${NC}")" choice
+echo -e "3) Update Pterodactyl & Blueprint${NC}"
+read -p "$(echo -e "${YELLOW}Enter your choice (1,2 or 3): ${NC}")" choice
 
 case "$choice" in
     1)
