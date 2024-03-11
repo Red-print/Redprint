@@ -421,6 +421,7 @@ stop_loading
               sudo apt update -qq &> /dev/null
               # Install Dependencies
               apt -y install php8.1 php8.1-{common,cli,gd,mysql,mbstring,bcmath,xml,fpm,curl,zip} mariadb-server nginx tar unzip git redis-server -qq &> /dev/null
+              sudo systemctl stop nginx
               stop_loading
 # Installing Composer
 echo -e "${GREEN}Installing Composer...${NC}"
@@ -439,7 +440,7 @@ read -r pterodactyl_password
 
 # Connect to MySQL, create the pterodactyl user, create the panel database, and grant privileges
 echo -e "${GREEN}Connecting to MySQL...${NC}"
-sudo mysql -u root -p -e "CREATE USER 'pterodactyl'@'127.0.0.1' IDENTIFIED BY '$pterodactyl_password'; CREATE DATABASE panel; GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1' WITH GRANT OPTION;"
+sudo mysql -u root -p -e "CREATE USER 'pterodactyl'@'127.0.0.1' IDENTIFIED BY '${pterodactyl_password}'; CREATE DATABASE panel; GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1' WITH GRANT OPTION;"
 
 echo -e "${GREEN}MySQL user 'pterodactyl' and database 'panel' have been created.${NC}"
 #Copying env
