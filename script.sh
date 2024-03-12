@@ -132,7 +132,8 @@ echo -e "${GREEN}Select an option:"
 echo -e "1) Install Blueprint"
 echo -e "2) Uninstall Blueprint"
 echo -e "3) Update Pterodactyl & Blueprint"
-read -p "$(echo -e "${YELLOW}Enter your choice (1,2, or 3): ${NC}")" choice
+echo -e "4) Deleting Pterodactyl & Blueprint"
+read -p "$(echo -e "${YELLOW}Enter your choice (1-4): ${NC}")" choice
 
 case "$choice" in
     1)
