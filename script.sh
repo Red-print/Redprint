@@ -19,7 +19,7 @@ ensure_path_format() {
 install_bp(){
 echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         read -r PTERO_PANEL
-        PTERO_PANEL=${PTERO_PANEL:-/var/www/pterodactyl/} # Use default value if input is empty
+
         PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
 
         # Check if the panel directory exists
@@ -60,14 +60,12 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         fi
 
         # Validate and handle the download URL securely
-        DOWNLOAD_URL=$(curl -s https://api.github.com/repos/BlueprintFramework/main/releases/latest | grep 'browser_download_url' | cut -d '"' -f 4)
+        DOWNLOAD_URL=$(curl -s https://api.github.com/repos/teamblueprint/main/releases/latest | grep 'browser_download_url' | cut -d '"' -f 4)
         if [[ -n $DOWNLOAD_URL ]]; then
-            wget "$DOWNLOAD_URL" -O "$PTERO_PANEL"latest_release.zip &> /dev/null
-            cd $PTERO_PANEL
+            wget "$DOWNLOAD_URL" -O latest_release.zip &> /dev/null
             unzip -o latest_release.zip &> /dev/null
-            
-            chmod +x "$PTERO_PANEL"blueprint.sh
-            "$PTERO_PANEL"blueprint.sh
+            chmod +x blueprint.sh
+            ./blueprint.sh
         else
             echo -e "${RED}[!] Failed to retrieve the latest release of Blueprint. Please check your internet connection and try again.${NC}"
             exit 1
@@ -133,9 +131,8 @@ fi
 echo -e "${GREEN}Select an option:"
 echo -e "1) Install Blueprint"
 echo -e "2) Uninstall Blueprint"
-echo -e "3) Update / Clean up Pterodactyl & Install Blueprint"
-echo -e "4) Remove Pterodactyl & Blueprint"
-read -p "$(echo -e "${YELLOW}Enter your choice (1,2,3 or 4): ${NC}")" choice
+echo -e "3) Update Pterodactyl & Blueprint"
+read -p "$(echo -e "${YELLOW}Enter your choice (1,2, or 3): ${NC}")" choice
 
 case "$choice" in
     1)
@@ -291,7 +288,6 @@ case "$choice" in
             ;;
     esac
     ;;
-    # Uninstalling ptero & bp
     4)
     # Asking Ptero directory
         echo "Enter the path to the panel directory. Default: /var/www/pterodactyl/"
@@ -338,7 +334,7 @@ case "$choice" in
         n|N)
         # Dropping DB & user
         echo -e "${GREEN}Dropping database and user...${NC}"
-        mysql -u root -p -e "SHOW DATABASES; DROP DATABASE panel; SELECT User, Host FROM mysql.user; DROP USER 'pterodactyl'@'127.0.0.1';" &> /dev/null
+        mysql -u root -p -e "SHOW DATABASES; DROP DATABASE panel; SELECT User, Host FROM mysql.user; DROP USER 'pterodactyl'@'127.0.0.1';"
         echo -e "${GREEN}Uninstallation process has been completed!${NC}"
         exit
         ;;
