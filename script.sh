@@ -19,7 +19,7 @@ ensure_path_format() {
 install_bp(){
 echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         read -r PTERO_PANEL
-
+        PTERO_PANEL=${PTERO_PANEL:-/var/www/pterodactyl/} # Use default value if input is empty
         PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
 
         # Check if the panel directory exists
