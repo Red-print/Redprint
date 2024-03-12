@@ -63,7 +63,9 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         DOWNLOAD_URL=$(curl -s https://api.github.com/repos/BlueprintFramework/main/releases/latest | grep 'browser_download_url' | cut -d '"' -f 4)
         if [[ -n $DOWNLOAD_URL ]]; then
             wget "$DOWNLOAD_URL" -O "$PTERO_PANEL"latest_release.zip &> /dev/null
-            unzip -o "$PTERO_PANEL"latest_release.zip &> /dev/null
+            cd $PTERO_PANEL
+            unzip -o latest_release.zip &> /dev/null
+            
             chmod +x "$PTERO_PANEL"blueprint.sh
             "$PTERO_PANEL"blueprint.sh
         else
