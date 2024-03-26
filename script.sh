@@ -153,7 +153,7 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         }
         # Uninstall Blueprint Functions
         debian_uninstall_bp(){
-        echo -e "WARNING!: ${RED}The following uninstall will remove blueprint and most* of its components."
+       echo -e "WARNING!: ${RED}The following uninstall will remove blueprint and most* of its components."
         echo -e "This will also delete your app/, public/, resources/, and ./blueprint folders.${NC}"
         read -p "$(echo -e "${YELLOW}Are you sure you want to continue with the uninstall${NC} (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
 
@@ -172,8 +172,7 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         esac
 
         # Define variables and proceed with the uninstallation
-                PTERO_PANEL=${PTERO_PANEL:-/var/www/pterodactyl/} # Use default value if input is empty
-        PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
+        directory="$PTERO_PANEL"
         files_to_delete=(
             ".blueprint/"
             "app/"
@@ -182,17 +181,18 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
             "routes/"
             "blueprint.sh"
         )
-echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
-        read -r PTERO_PANEL
 
+        read -p "$(echo -e "${YELLOW}Current directory: $directory. Press Enter to confirm, or enter a new directory: ${NC}")" new_directory
 
-        # Check if the panel directory exists
-        if [[ ! -d "$PTERO_PANEL" ]]; then
-            echo -e "${RED}[!] The panel directory does not exist. Please ensure that the panel directory is correct before running the uninstallation script.${NC}"
-            exit 1
+        if [[ -n "$new_directory" ]]; then
+            directory="$new_directory"
+            echo "Pterodactyl directory changed to: $directory"
+        else
+            echo "Pterodactyl directory confirmed: $directory"
         fi
+
         currentLoc=$(pwd)
-        cd "$PTERO_PANEL" || exit
+        cd "$directory" || exit
         php artisan down
         echo "Set panel into Maintenance Mode"
 
@@ -231,10 +231,10 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         esac
 
         echo -e "${GREEN}Finishing up...${NC}"
-        chown -R www-data:www-data "$PTERO_PANEL"
+        chown -R www-data:www-data "$directory"
         php artisan queue:restart
         php artisan up
-        chown -R www-data:www-data "$PTERO_PANEL"
+        chown -R www-data:www-data "$directory"
         echo "If you want to update your dependencies also, run:"
         echo "composer install --no-dev --optimize-autoloader"
         echo "As composer's recommendation, do NOT run it as root."
@@ -263,8 +263,7 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         esac
 
         # Define variables and proceed with the uninstallation
-                PTERO_PANEL=${PTERO_PANEL:-/var/www/pterodactyl/} # Use default value if input is empty
-        PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
+        directory="$PTERO_PANEL"
         files_to_delete=(
             ".blueprint/"
             "app/"
@@ -273,17 +272,18 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
             "routes/"
             "blueprint.sh"
         )
-echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
-        read -r PTERO_PANEL
 
+        read -p "$(echo -e "${YELLOW}Current directory: $directory. Press Enter to confirm, or enter a new directory: ${NC}")" new_directory
 
-        # Check if the panel directory exists
-        if [[ ! -d "$PTERO_PANEL" ]]; then
-            echo -e "${RED}[!] The panel directory does not exist. Please ensure that the panel directory is correct before running the uninstallation script.${NC}"
-            exit 1
+        if [[ -n "$new_directory" ]]; then
+            directory="$new_directory"
+            echo "Pterodactyl directory changed to: $directory"
+        else
+            echo "Pterodactyl directory confirmed: $directory"
         fi
+
         currentLoc=$(pwd)
-        cd "$PTERO_PANEL" || exit
+        cd "$directory" || exit
         php artisan down
         echo "Set panel into Maintenance Mode"
 
@@ -322,10 +322,10 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         esac
 
         echo -e "${GREEN}Finishing up...${NC}"
-        chown -R nginx:nginx "$PTERO_PANEL"
+        chown -R www-data:www-data "$directory"
         php artisan queue:restart
         php artisan up
-        chown -R nginx:nginx "$PTERO_PANEL"
+        chown -R www-data:www-data "$directory"
         echo "If you want to update your dependencies also, run:"
         echo "composer install --no-dev --optimize-autoloader"
         echo "As composer's recommendation, do NOT run it as root."
