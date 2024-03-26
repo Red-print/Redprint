@@ -39,9 +39,14 @@ read -p "$(echo -e "${YELLOW}Enter your choice (1-4): ${NC}")" choice
 
 case "$choice" in
     1)
+    
     URL="install"
-    source <(curl -s $_URL)
+    mkdir ./bp-tmp
+    cd ./bp-tmp
+    wget -q "$_URL" -O "install.sh"
+    source install.sh
         install_bp
+        rm -f ./install.sh
         ;;
     2)
     URL="uninstall"
