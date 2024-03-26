@@ -44,7 +44,7 @@ case "$choice" in
     mkdir ./bp-tmp
     cd ./bp-tmp
     wget -q "$_URL" -O ./install.sh
-    chmod +x ./install.sh
+    chmod u+x ./install.sh
 source ./install.sh
         rm -f ./install.sh
         ;;
