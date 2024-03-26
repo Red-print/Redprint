@@ -41,6 +41,7 @@ case "$choice" in
     1)
     
     URL="install"
+    echo"$_URL"
     mkdir ./bp-tmp
     cd ./bp-tmp
     wget -q "$_URL" -O ./install.sh
