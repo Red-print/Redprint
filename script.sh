@@ -41,7 +41,7 @@ case "$choice" in
     1)
     URL="install"
     bash <(curl -s $_URL)
-        install_bp
+        
         ;;
     2)
     URL="uninstall"
