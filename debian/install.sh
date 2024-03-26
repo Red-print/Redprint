@@ -1,4 +1,3 @@
-install_bp(){
 echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         read -r PTERO_PANEL
         PTERO_PANEL=${PTERO_PANEL:-/var/www/pterodactyl/} # Use default value if input is empty
@@ -52,7 +51,6 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
             echo -e "${RED}[!] Failed to retrieve the latest release of Blueprint. Please check your internet connection and try again.${NC}"
             exit 1
         fi
-        }
 # Function for loading animation
 start_loading() {
     echo -n "Installing Dependencies... "
