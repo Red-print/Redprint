@@ -44,8 +44,7 @@ case "$choice" in
     mkdir ./bp-tmp
     cd ./bp-tmp
     wget -q "$_URL" -O "install.sh"
-    source install.sh
-        install_bp
+bash ./bp-tmp/install.sh
         rm -f ./install.sh
         ;;
     2)
