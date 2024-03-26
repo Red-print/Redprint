@@ -151,71 +151,8 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
             exit 1
         fi
         }
-# Function for loading animation
-start_loading() {
-    echo -n "Installing Dependencies... "
-    while :; do
-        for s in / - \\ \|; do 
-            printf "\rInstalling Dependencies... %s" "$s"
-            sleep 0.2
-        done
-    done &
-    LOADING_PID=$!
-}
-
-# Function to stop loading animation
-stop_loading() {
-    kill "$LOADING_PID" &>/dev/null
-    printf "\r\033[K"
-}
-# Function to start updating loading animation
-start_uninstall() {
-    echo -n "Uninstalling... "
-    while :; do
-        for s in / - \\ \|; do 
-            printf "\rUninstalling... %s" "$s"
-            sleep 0.2
-        done
-    done &
-    LOADING_PID=$!
-}
-
-# Function to stop updating loading animation
-stop_uninstall() {
-    kill "$LOADING_PID" &>/dev/null
-    printf "\r\033[K"
-}
-
-start_uloading() {
-    echo -n "Updating... "
-    while :; do
-        for s in / - \\ \|; do 
-            printf "\rUpdating Dependencies... %s" "$s"
-            sleep 0.2
-        done
-    done &
-    LOADING_PID=$!
-}
-
-# Function to stop updating loading animation
-stop_uloading() {
-    kill "$LOADING_PID" &>/dev/null
-    printf "\r\033[K"
-}
-
-echo -e "${GREEN}Select an option:"
-echo -e "1) Install Blueprint"
-echo -e "2) Uninstall Blueprint"
-echo -e "3) Update Pterodactyl & Blueprint"
-echo -e "4) Deleting Pterodactyl & Blueprint"
-read -p "$(echo -e "${YELLOW}Enter your choice (1-4): ${NC}")" choice
-
-case "$choice" in
-    1)
-         ${OS_TYPE}_install_bp
-        ;;
-        # Uninstallation Process
-    2)
+        # Uninstall Blueprint Functions
+        debian_uninstall_bp(){
         echo -e "WARNING!: ${RED}The following uninstall will remove blueprint and most* of its components."
         echo -e "This will also delete your app/, public/, resources/, and ./blueprint folders.${NC}"
         read -p "$(echo -e "${YELLOW}Are you sure you want to continue with the uninstall${NC} (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
@@ -304,6 +241,164 @@ case "$choice" in
         echo "See https://getcomposer.org/root for details."
         cd "$currentLoc"
         echo -e "${GREEN}Uninstallation and update process completed!${NC}"
+        }
+
+                rhel_uninstall_bp(){
+        echo -e "WARNING!: ${RED}The following uninstall will remove blueprint and most* of its components."
+        echo -e "This will also delete your app/, public/, resources/, and ./blueprint folders.${NC}"
+        read -p "$(echo -e "${YELLOW}Are you sure you want to continue with the uninstall${NC} (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
+
+        case "$choice" in
+            y|Y) 
+                echo "Continuing with the uninstallation..."
+                ;;
+            n|N) 
+                echo "Exiting the script."
+                exit
+                ;;
+            *) 
+                echo -e "${YELLOW}Invalid choice. Please enter 'y' for yes or 'n' for no.${NC}"
+                exit 1
+                ;;
+        esac
+
+        # Define variables and proceed with the uninstallation
+        directory="$PTERO_PANEL"
+        files_to_delete=(
+            ".blueprint/"
+            "app/"
+            "public/"
+            "resources/"
+            "routes/"
+            "blueprint.sh"
+        )
+
+        read -p "$(echo -e "${YELLOW}Current directory: $directory. Press Enter to confirm, or enter a new directory: ${NC}")" new_directory
+
+        if [[ -n "$new_directory" ]]; then
+            directory="$new_directory"
+            echo "Pterodactyl directory changed to: $directory"
+        else
+            echo "Pterodactyl directory confirmed: $directory"
+        fi
+
+        currentLoc=$(pwd)
+        cd "$directory" || exit
+        php artisan down
+        echo "Set panel into Maintenance Mode"
+
+        # Iterate over each filename and delete it
+        for filename in "${files_to_delete[@]}"; do
+            if [[ -e "$filename" ]]; then
+                rm -r "$filename"
+                echo "Deleted '$filename'."
+            else
+                echo "File '$filename' does not exist."
+            fi
+        done
+
+        echo "Deleting files completed."
+        curl -L https://github.com/pterodactyl/panel/releases/latest/download/panel.tar.gz | tar -xzv
+        echo "Latest Pterodactyl panel downloaded and extracted."
+        rm -f panel.tar.gz
+        chmod -R 755 storage/* bootstrap/cache
+        php artisan view:clear
+        php artisan config:clear
+
+        read -p "$(echo -e "${YELLOW}Do you want to update your database schema for the newest version of Pterodactyl? (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
+
+        case "$choice" in
+            y|Y) 
+                echo "Updating database schema..."
+                php artisan migrate -q --seed --force
+                ;;
+            n|N) 
+                echo "Skipping database schema update."
+                ;;
+            *) 
+                echo "${YELLOW}Invalid choice.${NC}"
+                exit 1
+                ;;
+        esac
+
+        echo -e "${GREEN}Finishing up...${NC}"
+        chown -R nginx:nginx "$directory"
+        php artisan queue:restart
+        php artisan up
+        chown -R nginx:nginx "$directory"
+        echo "If you want to update your dependencies also, run:"
+        echo "composer install --no-dev --optimize-autoloader"
+        echo "As composer's recommendation, do NOT run it as root."
+        echo "See https://getcomposer.org/root for details."
+        cd "$currentLoc"
+        echo -e "${GREEN}Uninstallation and update process completed!${NC}"
+        }
+# Function for loading animation
+start_loading() {
+    echo -n "Installing Dependencies... "
+    while :; do
+        for s in / - \\ \|; do 
+            printf "\rInstalling Dependencies... %s" "$s"
+            sleep 0.2
+        done
+    done &
+    LOADING_PID=$!
+}
+
+# Function to stop loading animation
+stop_loading() {
+    kill "$LOADING_PID" &>/dev/null
+    printf "\r\033[K"
+}
+# Function to start updating loading animation
+start_uninstall() {
+    echo -n "Uninstalling... "
+    while :; do
+        for s in / - \\ \|; do 
+            printf "\rUninstalling... %s" "$s"
+            sleep 0.2
+        done
+    done &
+    LOADING_PID=$!
+}
+
+# Function to stop updating loading animation
+stop_uninstall() {
+    kill "$LOADING_PID" &>/dev/null
+    printf "\r\033[K"
+}
+
+start_uloading() {
+    echo -n "Updating... "
+    while :; do
+        for s in / - \\ \|; do 
+            printf "\rUpdating Dependencies... %s" "$s"
+            sleep 0.2
+        done
+    done &
+    LOADING_PID=$!
+}
+
+# Function to stop updating loading animation
+stop_uloading() {
+    kill "$LOADING_PID" &>/dev/null
+    printf "\r\033[K"
+}
+
+echo -e "${GREEN}Select an option:"
+echo -e "1) Install Blueprint"
+echo -e "2) Uninstall Blueprint"
+echo -e "3) Update Pterodactyl & Blueprint"
+echo -e "4) Deleting Pterodactyl & Blueprint"
+read -p "$(echo -e "${YELLOW}Enter your choice (1-4): ${NC}")" choice
+
+case "$choice" in
+    1)
+         ${OS_TYPE}_install_bp
+        ;;
+        # Uninstallation Process
+    2)
+        
         ;;
 3)
 # Asking Ptero directory
