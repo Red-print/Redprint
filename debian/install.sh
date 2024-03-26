@@ -70,3 +70,6 @@ stop_loading() {
     kill "$LOADING_PID" &>/dev/null
     printf "\r\033[K"
 }
+export -f install_bp
+export -f start_loading
+export -f stop_loading
