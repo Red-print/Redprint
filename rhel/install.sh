@@ -13,13 +13,14 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         start_loading
 
         # Installing dependencies
-        sudo apt-get install -y ca-certificates curl gnupg unzip zip &> /dev/null
-        sudo mkdir -p /etc/apt/keyrings &> /dev/null
-        curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg --yes &> /dev/null
-        echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list &> /dev/null
-        sudo apt-get update &> /dev/null
-        sudo apt-get install -y nodejs &> /dev/null
-        sudo npm i -g yarn &> /dev/null
+
+    sudo yum install -y ca-certificates curl gnupg unzip zip &> /dev/null
+    yum install wget -y &> /dev/null
+     curl -sL https://rpm.nodesource.com/setup_20.x | sudo bash - &> /dev/null
+    sudo yum update &> /dev/null
+    yum install nodejs -y &> /dev/null
+    sudo npm i -g yarn &> /dev/null
+
 
         stop_loading
 
