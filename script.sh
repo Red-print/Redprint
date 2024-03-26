@@ -40,8 +40,8 @@ read -p "$(echo -e "${YELLOW}Enter your choice (1-4): ${NC}")" choice
 case "$choice" in
     1)
     URL="install"
-    bash <(curl -s $_URL)
-        
+    source <(curl -s $_URL)
+        install_bp
         ;;
     2)
     URL="uninstall"
