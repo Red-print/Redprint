@@ -3,6 +3,7 @@
 # Define color constants for better readability
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+PURPLE="\033[38;2;217;18;251m"
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
@@ -88,6 +89,7 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
             unzip -o latest_release.zip &> /dev/null
             chmod +x blueprint.sh
             ./blueprint.sh
+            echo -e "${PURPLE}Thanks for using our script! If you found it helpful, please consider sharing and/or starring our GitHub repo. We appreciate your support"
         else
             echo -e "${RED}[!] Failed to retrieve the latest release of Blueprint. Please check your internet connection and try again.${NC}"
             exit 1
@@ -146,6 +148,7 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
             unzip -o latest_release.zip &> /dev/null
             chmod +x blueprint.sh
             ./blueprint.sh
+            echo -e "${PURPLE}Thanks for using our script! If you found it helpful, please consider sharing and/or starring our GitHub repo. We appreciate your support"
         else
             echo -e "${RED}[!] Failed to retrieve the latest release of Blueprint. Please check your internet connection and try again.${NC}"
             exit 1
@@ -241,6 +244,7 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         echo "See https://getcomposer.org/root for details."
         cd "$currentLoc"
         echo -e "${GREEN}Uninstallation and update process completed!${NC}"
+        echo -e "${PURPLE}Thanks for using our script! If you found it helpful, please consider sharing and/or starring our GitHub repo. We appreciate your support"
         }
 
                 rhel_uninstall_bp(){
@@ -334,6 +338,7 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         echo "See https://getcomposer.org/root for details."
         cd "$currentLoc"
         echo -e "${GREEN}Uninstallation and update process completed!${NC}"
+        echo -e "${PURPLE}Thanks for using our script! If you found it helpful, please consider sharing and/or starring our GitHub repo. We appreciate your support"
         }
 
         # Updating Pterodactyl & Blueprint Functions
@@ -385,6 +390,7 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
             php artisan up
 
             debian_install_bp
+            echo -e "${PURPLE}Thanks for using our script! If you found it helpful, please consider sharing and/or starring our GitHub repo. We appreciate your support"
             ;;
         n|N)
             echo "Exiting the script."
@@ -446,6 +452,7 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
             php artisan up
 
             rhel_install_bp
+            echo -e "${PURPLE}Thanks for using our script! If you found it helpful, please consider sharing and/or starring our GitHub repo. We appreciate your support"
             ;;
         n|N)
             echo "Exiting the script."
@@ -501,12 +508,15 @@ debian_remove_pb(){
         # Dropping DB & user
         echo -e "${GREEN}Dropping database and user...${NC}"
         mysql -u root -p -e "SHOW DATABASES; DROP DATABASE panel; SELECT User, Host FROM mysql.user; DROP USER 'pterodactyl'@'127.0.0.1';"
+        echo -e "${GREEN}Uninstallation process has been completed!${NC}"
+        echo -e "${PURPLE}Thanks for using our script! If you found it helpful, please consider sharing and/or starring our GitHub repo. We appreciate your support"
     ;;
         n|N)
         # Dropping DB & user
         echo -e "${GREEN}Dropping database and user...${NC}"
         mysql -u root -p -e "SHOW DATABASES; DROP DATABASE panel; SELECT User, Host FROM mysql.user; DROP USER 'pterodactyl'@'127.0.0.1';"
         echo -e "${GREEN}Uninstallation process has been completed!${NC}"
+        echo -e "${PURPLE}Thanks for using our script! If you found it helpful, please consider sharing and/or starring our GitHub repo. We appreciate your support"
         exit
         ;;
         n|N)
@@ -563,12 +573,15 @@ rhel_remove_pb(){
         # Dropping DB & user
         echo -e "${GREEN}Dropping database and user...${NC}"
         mysql -u root -p -e "SHOW DATABASES; DROP DATABASE panel; SELECT User, Host FROM mysql.user; DROP USER 'pterodactyl'@'127.0.0.1';"
+        echo -e "${GREEN}Uninstallation process has been completed!${NC}"
+        echo -e "${PURPLE}Thanks for using our script! If you found it helpful, please consider sharing and/or starring our GitHub repo. We appreciate your support"
     ;;
         n|N)
         # Dropping DB & user
         echo -e "${GREEN}Dropping database and user...${NC}"
         mysql -u root -p -e "SHOW DATABASES; DROP DATABASE panel; SELECT User, Host FROM mysql.user; DROP USER 'pterodactyl'@'127.0.0.1';"
         echo -e "${GREEN}Uninstallation process has been completed!${NC}"
+        echo -e "${PURPLE}Thanks for using our script! If you found it helpful, please consider sharing and/or starring our GitHub repo. We appreciate your support"
         exit
         ;;
         n|N)
