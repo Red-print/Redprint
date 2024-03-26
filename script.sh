@@ -91,7 +91,8 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
             ./blueprint.sh
             echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
-            cat << "EOF"
+            printf "\n"
+                        cat << "EOF"
   ,ad8PPPP88b,     ,d88PPPP8ba,
  d8P"      "Y8b, ,d8P"      "Y8b
 dP'           "8a8"           `Yd
@@ -108,7 +109,7 @@ I8                             8I
               `888'
                 "
 EOF
-${NC}
+echo -e "${NC}"
             
         else
             echo -e "${RED}[!] Failed to retrieve the latest release of Blueprint. Please check your internet connection and try again.${NC}"
@@ -170,6 +171,7 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
             ./blueprint.sh
                         echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+            printf "\n"
                         cat << "EOF"
   ,ad8PPPP88b,     ,d88PPPP8ba,
  d8P"      "Y8b, ,d8P"      "Y8b
@@ -187,7 +189,7 @@ I8                             8I
               `888'
                 "
 EOF
-${NC}
+echo -e "${NC}"
         else
             echo -e "${RED}[!] Failed to retrieve the latest release of Blueprint. Please check your internet connection and try again.${NC}"
             exit 1
@@ -285,6 +287,7 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         echo -e "${GREEN}Uninstallation and update process completed!${NC}"
                     echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+            printf "\n"
                         cat << "EOF"
   ,ad8PPPP88b,     ,d88PPPP8ba,
  d8P"      "Y8b, ,d8P"      "Y8b
@@ -302,7 +305,7 @@ I8                             8I
               `888'
                 "
 EOF
-${NC}
+echo -e "${NC}"
         }
 
                 rhel_uninstall_bp(){
@@ -398,6 +401,7 @@ ${NC}
         echo -e "${GREEN}Uninstallation and update process completed!${NC}"
                     echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+            printf "\n"
                         cat << "EOF"
   ,ad8PPPP88b,     ,d88PPPP8ba,
  d8P"      "Y8b, ,d8P"      "Y8b
@@ -415,7 +419,7 @@ I8                             8I
               `888'
                 "
 EOF
-${NC}
+echo -e "${NC}"
         }
 
         # Updating Pterodactyl & Blueprint Functions
@@ -469,6 +473,7 @@ ${NC}
             debian_install_bp
                         echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+            printf "\n"
                         cat << "EOF"
   ,ad8PPPP88b,     ,d88PPPP8ba,
  d8P"      "Y8b, ,d8P"      "Y8b
@@ -486,7 +491,7 @@ I8                             8I
               `888'
                 "
 EOF
-${NC}
+echo -e "${NC}"
             ;;
         n|N)
             echo "Exiting the script."
@@ -550,6 +555,7 @@ ${NC}
             rhel_install_bp
                        echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+            printf "\n"
                         cat << "EOF"
   ,ad8PPPP88b,     ,d88PPPP8ba,
  d8P"      "Y8b, ,d8P"      "Y8b
@@ -567,7 +573,7 @@ I8                             8I
               `888'
                 "
 EOF
-${NC}
+echo -e "${NC}"
             ;;
         n|N)
             echo "Exiting the script."
@@ -626,6 +632,7 @@ debian_remove_pb(){
         echo -e "${GREEN}Uninstallation process has been completed!${NC}"
                     echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+            printf "\n"
                         cat << "EOF"
   ,ad8PPPP88b,     ,d88PPPP8ba,
  d8P"      "Y8b, ,d8P"      "Y8b
@@ -643,7 +650,7 @@ I8                             8I
               `888'
                 "
 EOF
-${NC}
+echo -e "${NC}"
     ;;
         n|N)
         # Dropping DB & user
@@ -652,6 +659,7 @@ ${NC}
         echo -e "${GREEN}Uninstallation process has been completed!${NC}"
                     echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+            printf "\n"
                         cat << "EOF"
   ,ad8PPPP88b,     ,d88PPPP8ba,
  d8P"      "Y8b, ,d8P"      "Y8b
@@ -669,7 +677,7 @@ I8                             8I
               `888'
                 "
 EOF
-${NC}
+echo -e "${NC}"
         exit
         ;;
         n|N)
@@ -729,6 +737,7 @@ rhel_remove_pb(){
         echo -e "${GREEN}Uninstallation process has been completed!${NC}"
                     echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+            printf "\n"
                         cat << "EOF"
   ,ad8PPPP88b,     ,d88PPPP8ba,
  d8P"      "Y8b, ,d8P"      "Y8b
@@ -746,7 +755,7 @@ I8                             8I
               `888'
                 "
 EOF
-${NC}
+echo -e "${NC}"
     ;;
         n|N)
         # Dropping DB & user
@@ -755,6 +764,7 @@ ${NC}
         echo -e "${GREEN}Uninstallation process has been completed!${NC}"
                     echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+            printf "\n"
                         cat << "EOF"
   ,ad8PPPP88b,     ,d88PPPP8ba,
  d8P"      "Y8b, ,d8P"      "Y8b
@@ -772,7 +782,7 @@ I8                             8I
               `888'
                 "
 EOF
-${NC}
+echo -e "${NC}"
         exit
         ;;
         n|N)
