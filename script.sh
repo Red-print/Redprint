@@ -43,8 +43,8 @@ case "$choice" in
     URL="install"
     mkdir ./bp-tmp
     cd ./bp-tmp
-    wget -q "$_URL" -O "install.sh"
-bash ./bp-tmp/install.sh
+    wget -q "$_URL" -O ./install.sh
+bash ./install.sh
         rm -f ./install.sh
         ;;
     2)
