@@ -91,6 +91,25 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
             ./blueprint.sh
             echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+            cat << "EOF"
+  ,ad8PPPP88b,     ,d88PPPP8ba,
+ d8P"      "Y8b, ,d8P"      "Y8b
+dP'           "8a8"           `Yd
+8(              "              )8
+I8                             8I
+ Yb,                         ,dP
+  "8a,                     ,a8"
+    "8a,                 ,a8"
+      "Yba             adP"
+        `Y8a         a8P'
+          `88,     ,88'
+            "8b   d8"  
+             "8b d8"   
+              `888'
+                "
+EOF
+${NC}
+            
         else
             echo -e "${RED}[!] Failed to retrieve the latest release of Blueprint. Please check your internet connection and try again.${NC}"
             exit 1
@@ -151,6 +170,24 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
             ./blueprint.sh
                         echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+                        cat << "EOF"
+  ,ad8PPPP88b,     ,d88PPPP8ba,
+ d8P"      "Y8b, ,d8P"      "Y8b
+dP'           "8a8"           `Yd
+8(              "              )8
+I8                             8I
+ Yb,                         ,dP
+  "8a,                     ,a8"
+    "8a,                 ,a8"
+      "Yba             adP"
+        `Y8a         a8P'
+          `88,     ,88'
+            "8b   d8"  
+             "8b d8"   
+              `888'
+                "
+EOF
+${NC}
         else
             echo -e "${RED}[!] Failed to retrieve the latest release of Blueprint. Please check your internet connection and try again.${NC}"
             exit 1
@@ -248,6 +285,24 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         echo -e "${GREEN}Uninstallation and update process completed!${NC}"
                     echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+                        cat << "EOF"
+  ,ad8PPPP88b,     ,d88PPPP8ba,
+ d8P"      "Y8b, ,d8P"      "Y8b
+dP'           "8a8"           `Yd
+8(              "              )8
+I8                             8I
+ Yb,                         ,dP
+  "8a,                     ,a8"
+    "8a,                 ,a8"
+      "Yba             adP"
+        `Y8a         a8P'
+          `88,     ,88'
+            "8b   d8"  
+             "8b d8"   
+              `888'
+                "
+EOF
+${NC}
         }
 
                 rhel_uninstall_bp(){
@@ -343,6 +398,24 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         echo -e "${GREEN}Uninstallation and update process completed!${NC}"
                     echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+                        cat << "EOF"
+  ,ad8PPPP88b,     ,d88PPPP8ba,
+ d8P"      "Y8b, ,d8P"      "Y8b
+dP'           "8a8"           `Yd
+8(              "              )8
+I8                             8I
+ Yb,                         ,dP
+  "8a,                     ,a8"
+    "8a,                 ,a8"
+      "Yba             adP"
+        `Y8a         a8P'
+          `88,     ,88'
+            "8b   d8"  
+             "8b d8"   
+              `888'
+                "
+EOF
+${NC}
         }
 
         # Updating Pterodactyl & Blueprint Functions
@@ -396,6 +469,24 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
             debian_install_bp
                         echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+                        cat << "EOF"
+  ,ad8PPPP88b,     ,d88PPPP8ba,
+ d8P"      "Y8b, ,d8P"      "Y8b
+dP'           "8a8"           `Yd
+8(              "              )8
+I8                             8I
+ Yb,                         ,dP
+  "8a,                     ,a8"
+    "8a,                 ,a8"
+      "Yba             adP"
+        `Y8a         a8P'
+          `88,     ,88'
+            "8b   d8"  
+             "8b d8"   
+              `888'
+                "
+EOF
+${NC}
             ;;
         n|N)
             echo "Exiting the script."
@@ -459,6 +550,24 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
             rhel_install_bp
                        echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+                        cat << "EOF"
+  ,ad8PPPP88b,     ,d88PPPP8ba,
+ d8P"      "Y8b, ,d8P"      "Y8b
+dP'           "8a8"           `Yd
+8(              "              )8
+I8                             8I
+ Yb,                         ,dP
+  "8a,                     ,a8"
+    "8a,                 ,a8"
+      "Yba             adP"
+        `Y8a         a8P'
+          `88,     ,88'
+            "8b   d8"  
+             "8b d8"   
+              `888'
+                "
+EOF
+${NC}
             ;;
         n|N)
             echo "Exiting the script."
@@ -517,6 +626,24 @@ debian_remove_pb(){
         echo -e "${GREEN}Uninstallation process has been completed!${NC}"
                     echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+                        cat << "EOF"
+  ,ad8PPPP88b,     ,d88PPPP8ba,
+ d8P"      "Y8b, ,d8P"      "Y8b
+dP'           "8a8"           `Yd
+8(              "              )8
+I8                             8I
+ Yb,                         ,dP
+  "8a,                     ,a8"
+    "8a,                 ,a8"
+      "Yba             adP"
+        `Y8a         a8P'
+          `88,     ,88'
+            "8b   d8"  
+             "8b d8"   
+              `888'
+                "
+EOF
+${NC}
     ;;
         n|N)
         # Dropping DB & user
@@ -525,6 +652,24 @@ debian_remove_pb(){
         echo -e "${GREEN}Uninstallation process has been completed!${NC}"
                     echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+                        cat << "EOF"
+  ,ad8PPPP88b,     ,d88PPPP8ba,
+ d8P"      "Y8b, ,d8P"      "Y8b
+dP'           "8a8"           `Yd
+8(              "              )8
+I8                             8I
+ Yb,                         ,dP
+  "8a,                     ,a8"
+    "8a,                 ,a8"
+      "Yba             adP"
+        `Y8a         a8P'
+          `88,     ,88'
+            "8b   d8"  
+             "8b d8"   
+              `888'
+                "
+EOF
+${NC}
         exit
         ;;
         n|N)
@@ -584,6 +729,24 @@ rhel_remove_pb(){
         echo -e "${GREEN}Uninstallation process has been completed!${NC}"
                     echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+                        cat << "EOF"
+  ,ad8PPPP88b,     ,d88PPPP8ba,
+ d8P"      "Y8b, ,d8P"      "Y8b
+dP'           "8a8"           `Yd
+8(              "              )8
+I8                             8I
+ Yb,                         ,dP
+  "8a,                     ,a8"
+    "8a,                 ,a8"
+      "Yba             adP"
+        `Y8a         a8P'
+          `88,     ,88'
+            "8b   d8"  
+             "8b d8"   
+              `888'
+                "
+EOF
+${NC}
     ;;
         n|N)
         # Dropping DB & user
@@ -592,6 +755,24 @@ rhel_remove_pb(){
         echo -e "${GREEN}Uninstallation process has been completed!${NC}"
                     echo -e "${PURPLE}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+                        cat << "EOF"
+  ,ad8PPPP88b,     ,d88PPPP8ba,
+ d8P"      "Y8b, ,d8P"      "Y8b
+dP'           "8a8"           `Yd
+8(              "              )8
+I8                             8I
+ Yb,                         ,dP
+  "8a,                     ,a8"
+    "8a,                 ,a8"
+      "Yba             adP"
+        `Y8a         a8P'
+          `88,     ,88'
+            "8b   d8"  
+             "8b d8"   
+              `888'
+                "
+EOF
+${NC}
         exit
         ;;
         n|N)
