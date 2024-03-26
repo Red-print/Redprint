@@ -71,5 +71,8 @@ stop_loading() {
     printf "\r\033[K"
 }
 export -f install_bp
+./main.sh
 export -f start_loading
+./main.sh
 export -f stop_loading
+./main.sh
