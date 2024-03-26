@@ -47,6 +47,7 @@ case "$choice" in
     chmod u+x ./install.sh
 source ./install.sh
         rm -f ./install.sh
+        rm -f ../script.sh
         ;;
     2)
     URL="uninstall"
