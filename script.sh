@@ -263,7 +263,7 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         esac
 
         # Define variables and proceed with the uninstallation
-        directory="$PTERO_PANEL"
+   
         files_to_delete=(
             ".blueprint/"
             "app/"
@@ -273,17 +273,19 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
             "blueprint.sh"
         )
 
-        read -p "$(echo -e "${YELLOW}Current directory: $directory. Press Enter to confirm, or enter a new directory: ${NC}")" new_directory
+       echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
+        read -r PTERO_PANEL
+        PTERO_PANEL=${PTERO_PANEL:-/var/www/pterodactyl/} # Use default value if input is empty
+        PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
 
-        if [[ -n "$new_directory" ]]; then
-            directory="$new_directory"
-            echo "Pterodactyl directory changed to: $directory"
-        else
-            echo "Pterodactyl directory confirmed: $directory"
+        # Check if the panel directory exists
+        if [[ ! -d "$PTERO_PANEL" ]]; then
+            echo -e "${RED}[!] The panel directory does not exist. Please ensure that the panel directory is correct before running Blueprint.${NC}"
+            exit 1
         fi
 
         currentLoc=$(pwd)
-        cd "$directory" || exit
+        cd "$PTERO_PANEL" || exit
         php artisan down
         echo "Set panel into Maintenance Mode"
 
@@ -322,16 +324,139 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         esac
 
         echo -e "${GREEN}Finishing up...${NC}"
-        chown -R nginx:nginx "$directory"
+        chown -R nginx:nginx "$PTERO_PANEL"
         php artisan queue:restart
         php artisan up
-        chown -R nginx:nginx "$directory"
+        chown -R nginx:nginx "$PTERO_PANEL"
         echo "If you want to update your dependencies also, run:"
         echo "composer install --no-dev --optimize-autoloader"
         echo "As composer's recommendation, do NOT run it as root."
         echo "See https://getcomposer.org/root for details."
         cd "$currentLoc"
         echo -e "${GREEN}Uninstallation and update process completed!${NC}"
+        }
+
+        # Updating Pterodactyl & Blueprint Functions
+        debian_update_pb(){
+# Asking Ptero directory
+    echo "Enter the path to the panel directory. Default: /var/www/pterodactyl/"
+    read -r PTERO_PANEL
+
+    PTERO_PANEL=${PTERO_PANEL:-/var/www/pterodactyl/} # Use default value if input is empty
+    PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
+
+    # Check if the panel directory exists
+    if [[ ! -d "$PTERO_PANEL" ]]; then
+        echo -e "${RED}[!] The panel directory does not exist. Please ensure that the panel directory is correct before running an update.${NC}"
+        exit 1
+    fi
+# Warning the users
+    echo -e "WARNING: ${RED}Updating will make Pterodactyl unavailable. Please note that you WILL need to reinstall your blueprint extensions."
+    read -p "$(echo -e "${YELLOW}Are you sure you want to continue with the update? (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
+
+    case "$choice" in
+        y|Y)
+            echo -e "${GREEN}Pterodactyl is now in maintenance mode.${NC}"
+            cd "$PTERO_PANEL" || exit # Safeguard against directory change failure
+            php artisan down
+
+            echo -e "${GREEN}Downloading the latest version of Pterodactyl...${NC}"
+            curl -L -s https://github.com/pterodactyl/panel/releases/latest/download/panel.tar.gz | tar -xz
+
+            chmod -R 755 storage/* bootstrap/cache
+
+            echo -e "${GREEN}Updating Dependencies...${NC}"
+            start_uloading
+            composer install --no-dev --optimize-autoloader --quiet
+            stop_uloading
+
+            echo -e "${GREEN}Clearing views and configs...${NC}"
+            php artisan view:clear
+            php artisan config:clear
+            php artisan migrate -q --seed --force
+
+            echo -e "${GREEN}Setting up Web Server Permissions...${NC}"
+            chown -R www-data:www-data "${PTERO_PANEL}"*
+
+            echo -e "${GREEN}Restarting Workers...${NC}"
+            php artisan queue:restart
+
+            echo -e "${GREEN}Pterodactyl is now back online.${NC}"
+            php artisan up
+
+            debian_install_bp
+            ;;
+        n|N)
+            echo "Exiting the script."
+            exit 1
+            ;;
+        *)
+            echo "Invalid choice. Exiting."
+            exit 1
+            ;;
+    esac
+        
+        }
+
+                rhel_update_pb(){
+# Asking Ptero directory
+    echo "Enter the path to the panel directory. Default: /var/www/pterodactyl/"
+    read -r PTERO_PANEL
+
+    PTERO_PANEL=${PTERO_PANEL:-/var/www/pterodactyl/} # Use default value if input is empty
+    PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
+
+    # Check if the panel directory exists
+    if [[ ! -d "$PTERO_PANEL" ]]; then
+        echo -e "${RED}[!] The panel directory does not exist. Please ensure that the panel directory is correct before running an update.${NC}"
+        exit 1
+    fi
+# Warning the users
+    echo -e "WARNING: ${RED}Updating will make Pterodactyl unavailable. Please note that you WILL need to reinstall your blueprint extensions."
+    read -p "$(echo -e "${YELLOW}Are you sure you want to continue with the update? (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
+
+    case "$choice" in
+        y|Y)
+            echo -e "${GREEN}Pterodactyl is now in maintenance mode.${NC}"
+            cd "$PTERO_PANEL" || exit # Safeguard against directory change failure
+            php artisan down
+
+            echo -e "${GREEN}Downloading the latest version of Pterodactyl...${NC}"
+            curl -L -s https://github.com/pterodactyl/panel/releases/latest/download/panel.tar.gz | tar -xz
+
+            chmod -R 755 storage/* bootstrap/cache
+
+            echo -e "${GREEN}Updating Dependencies...${NC}"
+            start_uloading
+            composer install --no-dev --optimize-autoloader --quiet
+            stop_uloading
+
+            echo -e "${GREEN}Clearing views and configs...${NC}"
+            php artisan view:clear
+            php artisan config:clear
+            php artisan migrate -q --seed --force
+
+            echo -e "${GREEN}Setting up Web Server Permissions...${NC}"
+            chown -R nginx:nginx "${PTERO_PANEL}"*
+
+            echo -e "${GREEN}Restarting Workers...${NC}"
+            php artisan queue:restart
+
+            echo -e "${GREEN}Pterodactyl is now back online.${NC}"
+            php artisan up
+
+            rhel_install_bp
+            ;;
+        n|N)
+            echo "Exiting the script."
+            exit 1
+            ;;
+        *)
+            echo "Invalid choice. Exiting."
+            exit 1
+            ;;
+    esac
+        
         }
 # Function for loading animation
 start_loading() {
@@ -401,63 +526,7 @@ case "$choice" in
         ${OS_TYPE}_uninstall_bp
         ;;
 3)
-# Asking Ptero directory
-    echo "Enter the path to the panel directory. Default: /var/www/pterodactyl/"
-    read -r PTERO_PANEL
-
-    PTERO_PANEL=${PTERO_PANEL:-/var/www/pterodactyl/} # Use default value if input is empty
-    PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
-
-    # Check if the panel directory exists
-    if [[ ! -d "$PTERO_PANEL" ]]; then
-        echo -e "${RED}[!] The panel directory does not exist. Please ensure that the panel directory is correct before running an update.${NC}"
-        exit 1
-    fi
-# Warning the users
-    echo -e "WARNING: ${RED}Updating will make Pterodactyl unavailable. Please note that you WILL need to reinstall your blueprint extensions."
-    read -p "$(echo -e "${YELLOW}Are you sure you want to continue with the update? (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
-
-    case "$choice" in
-        y|Y)
-            echo -e "${GREEN}Pterodactyl is now in maintenance mode.${NC}"
-            cd "$PTERO_PANEL" || exit # Safeguard against directory change failure
-            php artisan down
-
-            echo -e "${GREEN}Downloading the latest version of Pterodactyl...${NC}"
-            curl -L -s https://github.com/pterodactyl/panel/releases/latest/download/panel.tar.gz | tar -xz
-
-            chmod -R 755 storage/* bootstrap/cache
-
-            echo -e "${GREEN}Updating Dependencies...${NC}"
-            start_uloading
-            composer install --no-dev --optimize-autoloader --quiet
-            stop_uloading
-
-            echo -e "${GREEN}Clearing views and configs...${NC}"
-            php artisan view:clear
-            php artisan config:clear
-            php artisan migrate -q --seed --force
-
-            echo -e "${GREEN}Setting up Web Server Permissions...${NC}"
-            chown -R www-data:www-data "${PTERO_PANEL}"*
-
-            echo -e "${GREEN}Restarting Workers...${NC}"
-            php artisan queue:restart
-
-            echo -e "${GREEN}Pterodactyl is now back online.${NC}"
-            php artisan up
-
-            install_bp
-            ;;
-        n|N)
-            echo "Exiting the script."
-            exit 1
-            ;;
-        *)
-            echo "Invalid choice. Exiting."
-            exit 1
-            ;;
-    esac
+${OS_TYPE}_update_pb
     ;;
     4)
     # Asking Ptero directory
