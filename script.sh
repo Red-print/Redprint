@@ -398,7 +398,7 @@ case "$choice" in
         ;;
         # Uninstallation Process
     2)
-        
+        ${OS_TYPE}_uninstall_bp
         ;;
 3)
 # Asking Ptero directory
