@@ -71,6 +71,7 @@ stop_loading() {
     kill "$LOADING_PID" &>/dev/null
     printf "\r\033[K"
 }
+chmod u+x ../main.sh
 export -f install_bp
 ../main.sh
 export -f start_loading
