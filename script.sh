@@ -458,6 +458,131 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
     esac
         
         }
+# Uninstall Pterodactyl & Blueprint
+debian_remove_pb(){
+    # Asking Ptero directory
+        echo "Enter the path to the panel directory. Default: /var/www/pterodactyl/"
+        read -r PTERO_PANEL
+
+        PTERO_PANEL=${PTERO_PANEL:-/var/www/pterodactyl/} # Use default value if input is empty
+        PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
+
+        # Check if the panel directory exists
+        if [[ ! -d "$PTERO_PANEL" ]]; then
+            echo -e "${RED}[!] The panel directory does not exist. Please ensure that the panel directory is correct before running an update.${NC}"
+            exit 1
+        fi
+    # Warning the users
+        echo -e "WARNING: ${RED}Uninstalling Pterodactyl & Blueprint will delete everything without any possibility of restoring it.${NC}"
+        read -p "$(echo -e "${YELLOW}Are you sure you want to continue with the uninstallation? (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
+
+        case "$choice" in
+            y|Y)
+            start_uninstall
+    sudo rm -rf $PTERO_PANEL &> /dev/null
+
+    # Pteroq queue worker
+    sudo rm /etc/systemd/system/pteroq.service &> /dev/null
+
+    # Removing conf files
+    sudo unlink /etc/nginx/sites-enabled/pterodactyl.conf &> /dev/null
+    stop_uninstall
+    read -p "$(echo -e "${YELLOW}Do you want to remove nginx? (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
+
+    case "$choice" in
+        y|Y)
+        start_uninstall
+        # Stopping nginx
+        sudo systemctl stop nginx &> /dev/null
+
+        sudo apt purge nginx nginx-common -y &> /dev/null
+        sudo apt autoremove -y &> /dev/null # remove any leftover dependencies
+        stop_uninstall
+        # Dropping DB & user
+        echo -e "${GREEN}Dropping database and user...${NC}"
+        mysql -u root -p -e "SHOW DATABASES; DROP DATABASE panel; SELECT User, Host FROM mysql.user; DROP USER 'pterodactyl'@'127.0.0.1';"
+    ;;
+        n|N)
+        # Dropping DB & user
+        echo -e "${GREEN}Dropping database and user...${NC}"
+        mysql -u root -p -e "SHOW DATABASES; DROP DATABASE panel; SELECT User, Host FROM mysql.user; DROP USER 'pterodactyl'@'127.0.0.1';"
+        echo -e "${GREEN}Uninstallation process has been completed!${NC}"
+        exit
+        ;;
+        n|N)
+        echo "Exiting the script."
+        exit
+        esac
+;;
+*)
+    echo -e "${YELLOW}Invalid section. Exiting.${NC}"
+    exit 1
+    ;;
+esac
+}
+
+rhel_remove_pb(){
+    # Asking Ptero directory
+        echo "Enter the path to the panel directory. Default: /var/www/pterodactyl/"
+        read -r PTERO_PANEL
+
+        PTERO_PANEL=${PTERO_PANEL:-/var/www/pterodactyl/} # Use default value if input is empty
+        PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
+
+        # Check if the panel directory exists
+        if [[ ! -d "$PTERO_PANEL" ]]; then
+            echo -e "${RED}[!] The panel directory does not exist. Please ensure that the panel directory is correct before running an update.${NC}"
+            exit 1
+        fi
+    # Warning the users
+        echo -e "WARNING: ${RED}Uninstalling Pterodactyl & Blueprint will delete everything without any possibility of restoring it.${NC}"
+        read -p "$(echo -e "${YELLOW}Are you sure you want to continue with the uninstallation? (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
+
+        case "$choice" in
+            y|Y)
+            start_uninstall
+    sudo rm -rf $PTERO_PANEL &> /dev/null
+
+    # Pteroq queue worker
+    sudo rm /etc/systemd/system/pteroq.service &> /dev/null
+
+    # Removing conf files
+    sudo rm -f /etc/nginx/conf.d/pterodactyl.conf &> /dev/null
+    stop_uninstall
+    read -p "$(echo -e "${YELLOW}Do you want to remove nginx? (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
+
+    case "$choice" in
+        y|Y)
+        start_uninstall
+        # Stopping nginx
+        sudo systemctl stop nginx &> /dev/null
+
+       sudo yum remove nginx nginx-common -y &> /dev/null
+       sudo yum autoremove -y &> /dev/null
+        stop_uninstall
+        # Dropping DB & user
+        echo -e "${GREEN}Dropping database and user...${NC}"
+        mysql -u root -p -e "SHOW DATABASES; DROP DATABASE panel; SELECT User, Host FROM mysql.user; DROP USER 'pterodactyl'@'127.0.0.1';"
+    ;;
+        n|N)
+        # Dropping DB & user
+        echo -e "${GREEN}Dropping database and user...${NC}"
+        mysql -u root -p -e "SHOW DATABASES; DROP DATABASE panel; SELECT User, Host FROM mysql.user; DROP USER 'pterodactyl'@'127.0.0.1';"
+        echo -e "${GREEN}Uninstallation process has been completed!${NC}"
+        exit
+        ;;
+        n|N)
+        echo "Exiting the script."
+        exit
+        esac
+;;
+*)
+    echo -e "${YELLOW}Invalid section. Exiting.${NC}"
+    exit 1
+    ;;
+esac
+}
+        
 # Function for loading animation
 start_loading() {
     echo -n "Installing Dependencies... "
@@ -529,65 +654,7 @@ case "$choice" in
 ${OS_TYPE}_update_pb
     ;;
     4)
-    # Asking Ptero directory
-        echo "Enter the path to the panel directory. Default: /var/www/pterodactyl/"
-        read -r PTERO_PANEL
-
-        PTERO_PANEL=${PTERO_PANEL:-/var/www/pterodactyl/} # Use default value if input is empty
-        PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
-
-        # Check if the panel directory exists
-        if [[ ! -d "$PTERO_PANEL" ]]; then
-            echo -e "${RED}[!] The panel directory does not exist. Please ensure that the panel directory is correct before running an update.${NC}"
-            exit 1
-        fi
-    # Warning the users
-        echo -e "WARNING: ${RED}Uninstalling Pterodactyl & Blueprint will delete everything without any possibility of restoring it.${NC}"
-        read -p "$(echo -e "${YELLOW}Are you sure you want to continue with the uninstallation? (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
-
-        case "$choice" in
-            y|Y)
-            start_uninstall
-    sudo rm -rf $PTERO_PANEL &> /dev/null
-
-    # Pteroq queue worker
-    sudo rm /etc/systemd/system/pteroq.service &> /dev/null
-
-    # Removing conf files
-    sudo unlink /etc/nginx/sites-enabled/pterodactyl.conf &> /dev/null
-    stop_uninstall
-    read -p "$(echo -e "${YELLOW}Do you want to remove nginx? (${GREEN}y${YELLOW}/${RED}n${NC}): ")" choice
-
-    case "$choice" in
-        y|Y)
-        start_uninstall
-        # Stopping nginx
-        sudo systemctl stop nginx &> /dev/null
-
-        sudo apt purge nginx nginx-common -y &> /dev/null
-        sudo apt autoremove -y &> /dev/null # remove any leftover dependencies
-        stop_uninstall
-        # Dropping DB & user
-        echo -e "${GREEN}Dropping database and user...${NC}"
-        mysql -u root -p -e "SHOW DATABASES; DROP DATABASE panel; SELECT User, Host FROM mysql.user; DROP USER 'pterodactyl'@'127.0.0.1';"
-    ;;
-        n|N)
-        # Dropping DB & user
-        echo -e "${GREEN}Dropping database and user...${NC}"
-        mysql -u root -p -e "SHOW DATABASES; DROP DATABASE panel; SELECT User, Host FROM mysql.user; DROP USER 'pterodactyl'@'127.0.0.1';"
-        echo -e "${GREEN}Uninstallation process has been completed!${NC}"
-        exit
-        ;;
-        n|N)
-        echo "Exiting the script."
-        exit
-        esac
-;;
-*)
-    echo -e "${YELLOW}Invalid section. Exiting.${NC}"
-    exit 1
-    ;;
-esac
+${OS_TYPE}_remove_pb
 ;;
 
         n|N)
