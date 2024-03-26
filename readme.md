@@ -13,9 +13,14 @@ BP-UTILITIES, an unofficial blueprint script, now allows for hassle-free install
 |                  | 10      | :white_check_mark: |
 |                  | 11      | :white_check_mark: |
 |                  | 12      | :white_check_mark: |
+| Rocky Linux           | 8       | :yellow_circle:       |
+|                  | 9       | :white_check_mark:   |
+| AlmaLinux           | 8       | :yellow_circle:       |
+|                  | 9       | :yellow_circle:   |
 | CentOS           | 6       | :red_circle:       |
 |                  | 7       | :red_circle:   |
 |                  | 8       | :red_circle:   |
+
 
 
 _\:yellow_circle: Indicates an operating system and release that hasn't been tested._
