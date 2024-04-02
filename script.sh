@@ -27,6 +27,15 @@ fi
 # Check OS type and set URLs
 check_os_type
 
+# Get total available memory in kilobytes
+total_mem=$(free -tk | awk 'NR==2 {print $2}')
+
+# Check if total memory is less than 2GB
+if (( $total_mem < 2*1024*1024 )); then
+    lessram=true
+    else
+    lessram=false
+fi
 # Function to ensure correct path format
 ensure_path_format() {
     local path="$1"
@@ -848,12 +857,21 @@ stop_uloading() {
     kill "$LOADING_PID" &>/dev/null
     printf "\r\033[K"
 }
-
+if [ "${lessram}" = true ]; then
+echo -e "${RED}YOU HAVE LESS THAN 2GB OF RAM YOUR SYSTEM MAY NOT BE ABLE TO RUN THIS."
+echo -e "WE RECOMMEND YOU TO ADD MORE RAM TO THE SYSTEM."
 echo -e "${GREEN}Select an option:"
 echo -e "1) Install Blueprint"
 echo -e "2) Uninstall Blueprint"
 echo -e "3) Update Pterodactyl & Blueprint"
 echo -e "4) Deleting Pterodactyl & Blueprint"
+else
+echo -e "${GREEN}Select an option:"
+echo -e "1) Install Blueprint"
+echo -e "2) Uninstall Blueprint"
+echo -e "3) Update Pterodactyl & Blueprint"
+echo -e "4) Deleting Pterodactyl & Blueprint"
+fi
 read -p "$(echo -e "${YELLOW}Enter your choice (1-4): ${NC}")" choice
 
 case "$choice" in
