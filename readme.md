@@ -27,7 +27,7 @@ _\:yellow_circle: Indicates an operating system and release that hasn't been tes
 ## Installation
 
 ```bash
-bash <(curl -s https://scripts.m-h.zip)
+bash <(curl -s https://redprint.zip)
 ```
 
 ## Contributing
