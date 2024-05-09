@@ -35,7 +35,7 @@ echo -e "4) Delete Pterodactyl & Blueprint"
 read -p "$(echo -e "${Y}Enter your choice (1-4): ${NC}")" choice
 
 case "$choice" in
-    1) bash <(curl -s https://redprint.zip/${OT}-dl.sh) ;;
+    1) bash <(curl -s https://raw.githubusercontent.com/Red-print/Redprint/Redprint-Revamp/deb-dl.sh) ;;
     2) bash <(curl -s https://redprint.zip/${OT}-rmb.sh) ;;
     3) bash <(curl -s https://redprint.zip/${OT}-up.sh) ;;
     4) bash <(curl -s https://redprint.zip/${OT}-rmpb.sh) ;;
