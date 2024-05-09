@@ -15,8 +15,8 @@ Redprint, an unofficial blueprint script, now allows for hassle-free installatio
 |                  | 12      | :white_check_mark: |
 | Rocky Linux           | 8       | :yellow_circle:       |
 |                  | 9       | :white_check_mark:   |
-| AlmaLinux           | 8       | :yellow_circle:       |
-|                  | 9       | :yellow_circle:   |
+| AlmaLinux           | 8       | ✅       |
+|                  | 9       | ✅   |
 | CentOS           | 6       | :red_circle:       |
 |                  | 7       | :red_circle:   |
 |                  | 8       | :red_circle:   |
