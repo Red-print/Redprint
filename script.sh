@@ -4,7 +4,7 @@ G='\033[0;32m'
 P="\033[38;2;217;18;251m"
 Y='\033[1;33m'
 NC='\033[0m'
-dlr='https://raw.githubusercontent.com/Red-print/Redprint/'
+dlr='https://raw.githubusercontent.com/Red-print/Redprint/main/'
 check_os_type() {
     if [[ -f /etc/redhat-release ]]; then
         OT="rhel"
