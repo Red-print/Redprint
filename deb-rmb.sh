@@ -32,7 +32,7 @@ echo -e "WARNING!: ${R}The following uninstall will remove blueprint and most* o
         esac
 
         # Define variables and proceed with the uninstallation
-                PTERO_PANEL=${PTERO_PANEL:-/var/www/pterodactyl/} # Use default value if input is empty
+        PTERO_PANEL=${PTERO_PANEL:-/var/www/pterodactyl/} # Use default value if input is empty
         PTERO_PANEL=$(ensure_path_format "$PTERO_PANEL")
         files_to_delete=(
             ".blueprint/"
