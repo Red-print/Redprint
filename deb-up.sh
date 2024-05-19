@@ -87,8 +87,7 @@ case "$reinstall_choice" in
 
             if [[ -f "$blueprint_file" ]]; then
                 echo -e "${G}Reinstalling blueprint extension: $ext...${NC}"
-                cd ${PTERO_PANEL}
-                blueprint -install "$blueprint_file"
+                blueprint -install ${ext}.blueprint
             else
                 echo -e "${R}[!] Blueprint file not found for extension: $ext${NC}"
             fi
