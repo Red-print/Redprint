@@ -71,7 +71,7 @@ echo "Enter the path to the panel directory. Default: /var/www/pterodactyl/"
             echo -e "${G}Pterodactyl is now back online.${NC}"
             php artisan up
 
-            blueprint -upgrade -remote
+            blueprint -upgrade remote blueprintframework/fallback
                        echo -e "${P}Thanks for using our script!"
             echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
             printf "\n"
