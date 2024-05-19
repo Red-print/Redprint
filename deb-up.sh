@@ -72,10 +72,38 @@ echo "Enter the path to the panel directory. Default: /var/www/pterodactyl/"
             php artisan up
 
             blueprint -upgrade remote blueprintframework/fallback
-                        echo -e "${P}Thanks for using our script!"
-            echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
-            printf "\n"
-                        cat << "EOF"
+
+read -p "$(echo -e "${Y}Do you want to reinstall blueprint extensions? \n${R}[!] Do note that there can be breaking changes.${NC} (${G}y${Y}/${R}n${NC}): ")" reinstall_choice
+
+case "$reinstall_choice" in
+    y|Y)
+        echo -e "${G}Enter the extensions you want to reinstall (separate with commas, e.g., nebula,slate):${NC}"
+        read -r extensions
+
+        IFS=',' read -ra EXT_ARRAY <<< "$extensions"
+        for ext in "${EXT_ARRAY[@]}"; do
+            ext=$(echo "$ext" | xargs) # Trim whitespace
+            blueprint_file="${PTERO_PANEL}/${ext}.blueprint"
+
+            if [[ -f "$blueprint_file" ]]; then
+                echo -e "${G}Reinstalling blueprint extension: $ext...${NC}"
+                blueprint -install ${ext}
+            else
+                echo -e "${R}[!] Blueprint file not found for extension: $ext${NC}"
+            fi
+        done
+        ;;
+    n|N)
+        echo "Skipping blueprint extensions reinstallation."
+        ;;
+    *)
+        echo "Invalid choice. Skipping blueprint extensions reinstallation."
+        ;;
+esac
+        echo -e "${P}Thanks for using our script!"
+        echo -e "If you found it helpful, please consider sharing and/or starring our GitHub repo."
+        printf "\n"
+        cat << "EOF"
   ,ad8PPPP88b,     ,d88PPPP8ba,
  d8P"      "Y8b, ,d8P"      "Y8b
 dP'           "8a8"           `Yd
@@ -92,14 +120,14 @@ I8                             8I
               `888'
                 "
 EOF
-echo -e "${NC}"
-            ;;
-        n|N)
-            echo "Exiting the script."
-            exit 1
-            ;;
-        *)
-            echo "Invalid choice. Exiting."
-            exit 1
-            ;;
-    esac
+        echo -e "${NC}"
+        ;;
+    n|N)
+        echo "Exiting the script."
+        exit 1
+        ;;
+    *)
+        echo "Invalid choice. Exiting."
+        exit 1
+        ;;
+esac
