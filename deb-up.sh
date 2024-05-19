@@ -73,7 +73,7 @@ echo "Enter the path to the panel directory. Default: /var/www/pterodactyl/"
 
             blueprint -upgrade remote blueprintframework/fallback
 
-read -p "$(echo -e "${Y}Do you want to reinstall blueprint extensions? (${G}y${Y}/${R}n${NC}): \n${R}Do note that there can be breaking changes.${NC}")" reinstall_choice
+read -p "$(echo -e "${Y}Do you want to reinstall blueprint extensions? \n${R}Do note that there can be breaking changes.${NC} (${G}y${Y}/${R}n${NC}): ")" reinstall_choice
 
 case "$reinstall_choice" in
     y|Y)
@@ -87,7 +87,8 @@ case "$reinstall_choice" in
 
             if [[ -f "$blueprint_file" ]]; then
                 echo -e "${G}Reinstalling blueprint extension: $ext...${NC}"
-                blueprint -install ${ext}
+                cd ${PTERO_PANEL}
+                blueprint -install ${ext}.blueprint
             else
                 echo -e "${R}[!] Blueprint file not found for extension: $ext${NC}"
             fi
