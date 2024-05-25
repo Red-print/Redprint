@@ -46,6 +46,7 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list &> /dev/null
         sudo apt-get update &> /dev/null
         sudo apt-get install -y nodejs &> /dev/null
+        apt-get install -y npm &> /dev/null
         sudo npm i -g yarn &> /dev/null
 
         stop_loading
