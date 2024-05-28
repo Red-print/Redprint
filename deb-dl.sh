@@ -40,14 +40,14 @@ echo "Enter the path to the panel directory. default : /var/www/pterodactyl/"
         start_loading
 
         # Installing dependencies
-        sudo apt-get install -y ca-certificates curl gnupg unzip zip &> /dev/null
-        sudo mkdir -p /etc/apt/keyrings &> /dev/null
-        curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg --yes &> /dev/null
-        echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list &> /dev/null
-        sudo apt-get update &> /dev/null
-        sudo apt-get install -y nodejs &> /dev/null
+          apt-get install -y ca-certificates curl gnupg unzip zip &> /dev/null
+          mkdir -p /etc/apt/keyrings &> /dev/null
+        curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key |   gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg --yes &> /dev/null
+        echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" |   tee /etc/apt/sources.list.d/nodesource.list &> /dev/null
+          apt-get update &> /dev/null
+          apt-get install -y nodejs &> /dev/null
         apt-get install -y npm &> /dev/null
-        sudo npm i -g yarn &> /dev/null
+          npm i -g yarn &> /dev/null
 
         stop_loading
 
