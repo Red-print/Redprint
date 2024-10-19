@@ -71,27 +71,36 @@ echo "Enter the path to the panel directory. Default: /var/www/pterodactyl/"
             echo -e "${G}Pterodactyl is now back online.${NC}"
             php artisan up
 
-            blueprint -upgrade remote blueprintframework/fallback
+            blueprint -upgrade
 
 read -p "$(echo -e "${Y}Do you want to reinstall blueprint extensions? \n${R}[!] Do note that there can be breaking changes.${NC} (${G}y${Y}/${R}n${NC}): ")" reinstall_choice
 
 case "$reinstall_choice" in
     y|Y)
-        echo -e "${G}Enter the extensions you want to reinstall (separate with commas, e.g., nebula,slate):${NC}"
+        echo -e "${G}Enter the extensions you want to reinstall (separate with spaces, e.g., nebula slate loader):${NC}"
         read -r extensions
 
         IFS=',' read -ra EXT_ARRAY <<< "$extensions"
+        install_list=()  # Create an empty array to collect valid extensions
         for ext in "${EXT_ARRAY[@]}"; do
-            ext=$(echo "$ext" | xargs) # Trim whitespace
+            ext=$(echo "$ext" | xargs)  # Trim whitespace
             blueprint_file="${PTERO_PANEL}/${ext}.blueprint"
 
             if [[ -f "$blueprint_file" ]]; then
                 echo -e "${G}Reinstalling blueprint extension: $ext...${NC}"
-                blueprint -install ${ext}
+                install_list+=("$ext")  # Add valid extension to the list
             else
                 echo -e "${R}[!] Blueprint file not found for extension: $ext${NC}"
             fi
         done
+
+        # If we have valid extensions, install them in one command
+        if [[ ${#install_list[@]} -gt 0 ]]; then
+            echo -e "${G}Installing all valid extensions in one command...${NC}"
+            blueprint -install "${install_list[@]}"
+        else
+            echo -e "${R}[!] No valid blueprint files found to install.${NC}"
+        fi
         ;;
     n|N)
         echo "Skipping blueprint extensions reinstallation."
