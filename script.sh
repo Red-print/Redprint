@@ -26,7 +26,7 @@ if (( $tm < 2048 )); then
     echo -e "${R}Warning: Less than 2GB of RAM detected. System may not be able to run this.${NC}"
     echo -e "Recommend adding more RAM to the system."
 fi
-
+echo -e "${Y}This script is sponsored by ${R}elixior.cloud${NC}"
 echo -e "${G}Select an option:"
 echo -e "1) Install Blueprint"
 echo -e "2) Uninstall Blueprint"
